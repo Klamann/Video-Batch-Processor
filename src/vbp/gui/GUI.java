@@ -16,11 +16,15 @@
  */
 package vbp.gui;
 
+import java.net.URISyntaxException;
 import vbp.model.Model;
 import vbp.model.Model.GuiComponents;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Image;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
@@ -226,6 +230,20 @@ public class GUI extends javax.swing.JFrame {
             }
         }.start();
     }
+    
+    private static void open(URI uri) {
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(uri);
+            } catch (IOException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } else {
+            // TODO: error handling
+        }
+    }
+
 
     // </editor-fold>
     
@@ -301,6 +319,10 @@ public class GUI extends javax.swing.JFrame {
         jFileChooserExportHandbrake = new javax.swing.JFileChooser();
         jFileChooserProjectLoad = new javax.swing.JFileChooser();
         jFileChooserProjectSave = new javax.swing.JFileChooser();
+        jFrameAbout = new javax.swing.JFrame();
+        jButton4 = new javax.swing.JButton();
+        jLabel8 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
         jPanelFileView = new javax.swing.JPanel();
         jScrollPaneFileList = new javax.swing.JScrollPane();
         listModelTranscode = new javax.swing.DefaultListModel<String>();
@@ -402,6 +424,59 @@ public class GUI extends javax.swing.JFrame {
 
         jFileChooserProjectSave.setDialogTitle("Save vbs-Project");
         jFileChooserProjectSave.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+
+        jFrameAbout.setTitle("About VideoBatchProcessor");
+        jFrameAbout.setAlwaysOnTop(true);
+        jFrameAbout.setMinimumSize(new java.awt.Dimension(250, 170));
+        jFrameAbout.setResizable(false);
+        jFrameAbout.setLocationRelativeTo(null);
+
+        jButton4.setText("Close");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel8.setText(aboutText);
+        jLabel8.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+
+        jButton5.setBackground(new java.awt.Color(255, 255, 255));
+        jButton5.setText("Homepage");
+        jButton5.setBorderPainted(false);
+        jButton5.setOpaque(false);
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jFrameAboutLayout = new javax.swing.GroupLayout(jFrameAbout.getContentPane());
+        jFrameAbout.getContentPane().setLayout(jFrameAboutLayout);
+        jFrameAboutLayout.setHorizontalGroup(
+            jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jFrameAboutLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                    .addGroup(jFrameAboutLayout.createSequentialGroup()
+                        .addComponent(jButton5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
+                        .addComponent(jButton4)))
+                .addContainerGap())
+        );
+        jFrameAboutLayout.setVerticalGroup(
+            jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrameAboutLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton5)
+                    .addComponent(jButton4))
+                .addContainerGap())
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Video Batch Processor");
@@ -1317,7 +1392,8 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }//GEN-LAST:event_jButtonExitActionPerformed
 
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
-        JOptionPane.showMessageDialog(null, aboutText, aboutTitle, JOptionPane.INFORMATION_MESSAGE);
+//        JOptionPane.showMessageDialog(null, aboutText, aboutTitle, JOptionPane.INFORMATION_MESSAGE);
+        jFrameAbout.setVisible(true);
     }//GEN-LAST:event_jMenuItemAboutActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -1354,6 +1430,24 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private void jMenuItemSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSaveAsActionPerformed
         saveProject();
     }//GEN-LAST:event_jMenuItemSaveAsActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        jFrameAbout.setVisible(false);
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        new ThreadedExecutor() {
+
+            @Override
+            public void execute() {
+                try {
+                    open(new URI("https://github.com/Klamann/Video-Batch-Processor"));
+                } catch (URISyntaxException ex) {
+                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }.start();
+    }//GEN-LAST:event_jButton5ActionPerformed
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Variables declaration - generated by GUI builder">
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1363,6 +1457,8 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButtonAddFiles;
     private javax.swing.JButton jButtonClearInput;
     private javax.swing.JButton jButtonClearTranscode;
@@ -1394,6 +1490,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JFileChooser jFileChooserProjectSave;
     private javax.swing.JFormattedTextField jFormattedTextFieldSizeMax;
     private javax.swing.JFormattedTextField jFormattedTextFieldSizeMin;
+    private javax.swing.JFrame jFrameAbout;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1401,6 +1498,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JList jListInput;
     private javax.swing.DefaultListModel<String> listModelInput;
     private javax.swing.JList jListTranscode;
