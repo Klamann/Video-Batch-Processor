@@ -24,17 +24,17 @@ import org.jdom.output.XMLOutputter;
 import java.util.List;
 
 /**
- * Hier werden diverse nuetzliche statische Methoden gesammelt, die
- * den Umgang mit XML und Catan vereinfachen.
+ * This is a collection of static functions that extend the functionality of
+ * the jdom-api
  * 
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class XMLUtil {
 
     /**
-     * Gibt das XML als einzeiligen String zurueck
-     * @param doc das XML Dokument (JDOM)
-     * @return das XML als String
+     * Returns a single line string representation of an xml-document
+     * @param doc the xml document object (JDOM)
+     * @return the document as single line string
      */
     public static String xmlToString(Document doc) {
         XMLOutputter outp = new XMLOutputter(Format.getRawFormat());
@@ -42,10 +42,10 @@ public class XMLUtil {
     }
 
     /**
-     * Gibt das XML (JDOM) als formatierten String zurueck
-     * @param doc das XML Dokument (JDOM)
-     * @param format die Formatierung (z.B. getPrettyFormat())
-     * @return das XML als String
+     * Returns a xml document as formatted string, using jdom's Format class
+     * @param doc the xml document object (JDOM)
+     * @param format the formatting (e.g. getPrettyFormat())
+     * @return the document as formatted string
      */
     public static String xmlToString(Document doc, Format format) {
         XMLOutputter outp = new XMLOutputter(format);
@@ -53,10 +53,10 @@ public class XMLUtil {
     }
 
     /**
-     * Gibt das erste Kindelement eines beliebigen Elements zurueck
-     * oder null wenn es keine Kinder hat.
-     * @param parent Elternelement
-     * @return erstes Kindelement (in Document Order)
+     * Returns the first child of an element or <code>null</code> if it doesn't
+     * have any child elements.
+     * @param parent the parent element
+     * @return first child element (in document order)
      */
     public static Element getFirstChild(Element parent) {
         List<Element> children = parent.getChildren();

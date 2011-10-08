@@ -28,6 +28,8 @@ import sebi.util.data.ListUtils;
 import sebi.util.observer.EventArgs;
 
 /**
+ * The Model class holds the main program logic. All user settings are stored
+ * here and every action is executed from here.
  * 
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
@@ -67,21 +69,33 @@ public class Model {
     // </editor-fold>
     
     public Model() {
-        
+        // unused
     }
     
+    /**
+     * Writes inital values. Must be called after the model was constructed
+     * (can not reference model while construction is is progress)
+     */
     public void init() {
         Settings.loadSettings(this);
     }
     
     // ------------- load and save -------------
     
+    /**
+     * loads the default configuration. Shall be called when no user configuration
+     * is available or the user specifically requests this from gui.
+     */
     public void loadDefaults() {
         Settings.loadDefaultSettings(this);
         filesToTranscode = new ArrayList<File>();
         inputFiles = new ArrayList<File>();
     }
     
+    /**
+     * Loads a saved project file
+     * @param fileChooser the file selection dialogue to be opened
+     */
     public void loadProject(JFileChooser fileChooser) {
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             Settings.loadProject(this, fileChooser.getSelectedFile());
@@ -90,6 +104,10 @@ public class Model {
         }
     }
     
+    /**
+     * Saves the current project to a user selected location
+     * @param fileChooser the file selection dialogue to be opened
+     */
     public void saveProject(JFileChooser fileChooser) {
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             Settings.writeProject(this, fileChooser.getSelectedFile());

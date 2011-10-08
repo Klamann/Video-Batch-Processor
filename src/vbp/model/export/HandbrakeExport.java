@@ -34,13 +34,29 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
- *
+ * This is the export script to create Handbrake-Queue files out of a list of
+ * video files.
+ * The queue files can be imported into Handbrake to be processed there.
+ * 
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class HandbrakeExport {
     
+    /**
+     * This function acts as a wrapper for buildQueue(). It generates the .queue-
+     * File and promts the user with a saving-dialogue, so the file can be written
+     * to the desired location.
+     * @param fileChooser the jFileChooser to popup
+     * @param files all files that shall be transcoded by handbrake
+     * @param query the handbrake query defining the coding settings that shall be
+     *        applied to all files
+     * @param renamePattern the pattern after which the files are renamed (because
+     *        they will be saved in the same folder as the originals the cannot have
+     *        the exact same name, including extension)
+     */
     public static void saveQueue(JFileChooser fileChooser, final List<File> files, final String query, final String renamePattern) {
         
         // export in new thread
@@ -140,15 +156,19 @@ public class HandbrakeExport {
         return XMLUtil.xmlToString(doc, Format.getPrettyFormat());
     }
 
+    /**
+     * not yet implemented!
+     */
     public static String buildQeue(List<File> files, String query, File destination, boolean preserveStructure) {
-        
-        // TODO implement!
-        
-        return null;
+        throw new NotImplementedException();
     }
 
     // ++++++++++ static xml stuff ++++++++++
     
+    /**
+     * Generates the basic Handbrake-Queue-XML structure
+     * @return the handbrake queue xml-object (as jdom document)
+     */
     protected static Document buildBasicDocument() {
         Element root = new Element("ArrayOfJob");
         Document doc = new Document(root);
@@ -161,10 +181,27 @@ public class HandbrakeExport {
         return doc;
     }
 
+    /**
+     * Generates the Handbrake-Query. Takes the original query without path names,
+     * the source file and the destination as inputs
+     * @param query original handbrake query without -i and -o
+     * @param source the canocial path to the source file
+     * @param destination the canocial path to the destination file
+     * @return the full handbrake query
+     */
     protected static String buildHandbrakeQuery(String query, String source, String destination) {
         return String.format("-i \"%s\" -o \"%s\" %s", source, destination, query);
     }
     
+    /**
+     * Applys the user's rename pattern on the source file, to generate the correct
+     * output file name. It reflects the correct file extension from the handbrake-
+     * query.
+     * @param source the source file path
+     * @param pattern the rename pattern
+     * @param query the handbrake query
+     * @return the destination file path, renamed and with correct extension.
+     */
     protected static String applyRenamePattern(File source, String pattern, String query) {
         
         // gather properties
@@ -187,7 +224,13 @@ public class HandbrakeExport {
         }
         String ext = query.substring(formatBegin, formatEnd);
         
-        // return full file path with new filename and extension according to handbrake-query
+        // full file path with new filename and extension according to handbrake-query
+        File result = new File(String.format("%s/%s.%s", path, name, ext));
+        try {
+            return result.getCanonicalPath();
+        } catch (IOException ex) {
+            Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return String.format("%s%s.%s", path, name, ext);
     }
 }

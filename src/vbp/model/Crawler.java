@@ -51,9 +51,6 @@ public class Crawler implements ICrawler {
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
-    /**
-     * most simple crawler of all...
-     */
     @Override
     public List<File> crawlComplete(List<File> input, boolean recursive) {
         crawled.clear();
