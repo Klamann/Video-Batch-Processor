@@ -35,14 +35,15 @@ directory. In this folder a file `settings.ini` will be created to store
 your previous configuration. If you want to remove any traces of this 
 software on your local data storage device, just remove the `.vbp`-folder.
 
-On Windows operating systems, this folder can usually be found under `C:\Users\<yourname>\.vbp\`
+On Windows operating systems, this folder can usually be found under 
+`C:\Users\<yourname>\.vbp\`
 
 On Unix-like operating systems it's usually `/home/<yourname>/.vbp/`
 
 Changelog
 ---------
 
-see ´CHANGELOG.md´ in the [source repository](https://github.com/Klamann/Video-Batch-Processor).
+see `CHANGELOG.md` in the [source repository](https://github.com/Klamann/Video-Batch-Processor/blob/master/CHANGELOG.md).
 
 Contact
 -------
@@ -58,18 +59,18 @@ Found any bugs? Please report them to the [Issue Tracker](https://github.com/Kla
 Copyright
 ---------
 
-Copyright (C) 2011 Sebastian Straub, <sebastian-straub@gmx.net>
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Copyright (C) 2011 Sebastian Straub, <sebastian-straub@gmx.net>
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
