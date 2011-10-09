@@ -73,7 +73,7 @@
     -->
 	
 	<target name="-post-jar">
-        <jar jarfile="dist/Combined-dist.jar">
+        <jar jarfile="dist/VideoBatchProcessor-single.jar">
             <zipfileset src="${dist.jar}" excludes="META-INF/*" />
             <zipfileset src="nbproject/lib/jdom.jar" excludes="META-INF/*" />
             <zipfileset src="nbproject/lib/sebis-utils.jar" excludes="META-INF/*" />

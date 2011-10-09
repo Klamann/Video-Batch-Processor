@@ -32,6 +32,13 @@ import org.ini4j.Profile.Section;
  */
 public class Settings {
     
+    // sections
+    private static String secInput = "input";
+    private static String secOutput = "output";
+    private static String secSearch = "search";
+    private static String secEncoding = "encoding";
+    private static String secTranscode = "transcode";
+    
     /**
      * Writes the current program settings into a .ini file in the user home
      * directory.
@@ -53,10 +60,10 @@ public class Settings {
         Ini ini = new Ini();
         writeCommonSettings(model, ini);
         
-        Section input = ini.get("input");
+        Section input = ini.get(secInput);
         input.putAll("file", fileToStringList(model.inputFiles));
         
-        Section transcode = ini.add("transcode");
+        Section transcode = ini.add(secTranscode);
         transcode.putAll("file", fileToStringList(model.filesToTranscode));
         
         writeToDisk(ini, projectFile);
@@ -71,23 +78,25 @@ public class Settings {
      */
     protected static Ini writeCommonSettings(Model model, Ini ini) {
         
-        ini.put("input", "recursive", model.recursive);
+        ini.put(secInput, "recursive", model.recursive);
         
-        ini.put("output", "method", model.outputMethod.toString());
-        ini.put("output", "pattern", model.renamePattern);
+        Section output = ini.add(secOutput);
+        output.put("method", model.outputMethod.toString());
+        output.put("pattern", model.renamePattern);
         if(model.outputLocation != null)
-            ini.put("output", "folder",  model.outputLocation.toString());
-        ini.put("output", "preserve", model.preserveFolders);
+            output.put("folder",  model.outputLocation.toString());
+        output.put("preserve", model.preserveFolders);
         
-        ini.put("search", "method", model.searchPattern.toString());
-        ini.put("search", "size", model.fileSize);
-        ini.put("search", "sizeMin", model.minSize);
-        ini.put("search", "sizeMax", model.maxSize);
-        ini.put("search", "extension", model.fileExtension);
-        ini.put("search", "extensionFilter", model.extensionFilter);
-        ini.put("search", "regex", model.regex);
+        Section search = ini.add(secSearch);
+        search.put("method", model.searchPattern.toString());
+        search.put("size", model.fileSize);
+        search.put("sizeMin", model.minSize);
+        search.put("sizeMax", model.maxSize);
+        search.put("extension", model.fileExtension);
+        search.put("extensionFilter", model.extensionFilter);
+        search.put("regex", model.regex);
         
-        ini.put("encoding", "handbrake", model.handBrakeQuery);
+        ini.put(secEncoding, "handbrake", model.handBrakeQuery);
         
         return ini;
     }
@@ -124,11 +133,11 @@ public class Settings {
                 Ini ini = new Ini(location);
                 loadCommonSettings(model, ini);
                 
-                Section input = ini.get("input");
+                Section input = ini.get(secInput);
                 String[] inputFiles = input.getAll("file", String[].class);
                 model.inputFiles = stringToFileList(inputFiles);
                 
-                Section transcode = ini.get("transcode");
+                Section transcode = ini.get(secTranscode);
                 String[] filesToTranscode = transcode.getAll("file", String[].class);
                 model.filesToTranscode = stringToFileList(filesToTranscode);
                 
@@ -147,9 +156,9 @@ public class Settings {
      * @param ini the ini where the settings are stored
      */
     protected static void loadCommonSettings(Model model, Ini ini) {
-        model.recursive = ini.get("input", "recursive", boolean.class);
+        model.recursive = ini.get(secInput, "recursive", boolean.class);
 
-        Section output = ini.get("output");
+        Section output = ini.get(secOutput);
         model.outputMethod = Model.OutputMethod.valueOf(output.get("method", String.class));
         model.renamePattern = output.get("pattern", String.class);
         if (output.containsKey("folder")) {
@@ -157,7 +166,7 @@ public class Settings {
         }
         model.preserveFolders = output.get("preserve", boolean.class);
 
-        Section search = ini.get("search");
+        Section search = ini.get(secSearch);
         model.searchPattern = Model.SearchPattern.valueOf(search.get("method", String.class));
         model.fileSize = search.get("size", boolean.class);
         model.minSize = search.get("sizeMin", long.class);
@@ -166,7 +175,7 @@ public class Settings {
         model.extensionFilter = search.get("extensionFilter", String.class);
         model.regex = search.get("regex", String.class);
 
-        model.handBrakeQuery = ini.get("encoding", "handbrake", String.class);
+        model.handBrakeQuery = ini.get(secEncoding, "handbrake", String.class);
     }
     
     /**

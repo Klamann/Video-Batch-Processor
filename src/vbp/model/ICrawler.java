@@ -34,7 +34,7 @@ public interface ICrawler {
      * @param recursive folders will be crawled recursively (to the bottom) if set to true
      * @return list of all crawled files
      */
-    public List<File> crawl(List<File> input, boolean recursive);
+    List<File> crawl(List<File> input, boolean recursive);
     
     /**
      * Searches for all files that haven't been crawled for before (incremental crawling).
@@ -44,7 +44,7 @@ public interface ICrawler {
      * @param filter file filter that decides which file comes on the list
      * @return list of all crawled files that have passed the filter
      */
-    public List<File> crawl(List<File> input, boolean recursive, IFileFilter filter);
+    List<File> crawl(List<File> input, boolean recursive, IFileFilter filter);
     
     /**
      * Searches for all files no matter if they have been crawled for before (complete crawling).
@@ -53,7 +53,7 @@ public interface ICrawler {
      * @param recursive folders will be crawled recursively (to the bottom) if set to true
      * @return list of all crawled files
      */
-    public List<File> crawlComplete(List<File> input, boolean recursive);
+    List<File> crawlComplete(List<File> input, boolean recursive);
     
     /**
      * Searches for all files no matter if they have been crawled for before (complete crawling).
@@ -63,6 +63,6 @@ public interface ICrawler {
      * @param filter file filter that decides which file comes on the list
      * @return list of all crawled files that have passed the filter
      */
-    public List<File> crawlComplete(List<File> input, boolean recursive, IFileFilter filter);
+    List<File> crawlComplete(List<File> input, boolean recursive, IFileFilter filter);
     
 }

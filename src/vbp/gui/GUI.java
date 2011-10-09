@@ -237,7 +237,8 @@ public class GUI extends javax.swing.JFrame {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            // TODO: error handling
+            JOptionPane.showMessageDialog(null, String.format("Your java runtime does not seem to support the opening of weblinks.\n"
+                    + "You can open the link manually though:\n%s", uri.toString()), "Unable to open weblink", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -325,9 +326,8 @@ public class GUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        SearchPatternChooser = new javax.swing.ButtonGroup();
-        OutputTypeChooser = new javax.swing.ButtonGroup();
-        ReallyDelete = new javax.swing.JOptionPane();
+        searchPatternChooser = new javax.swing.ButtonGroup();
+        outputTypeChooser = new javax.swing.ButtonGroup();
         jFileChooserInput = new javax.swing.JFileChooser();
         jFileChooserExportHandbrake = new javax.swing.JFileChooser();
         jFileChooserProjectLoad = new javax.swing.JFileChooser();
@@ -424,8 +424,6 @@ public class GUI extends javax.swing.JFrame {
         jMenuItemHelp = new javax.swing.JMenuItem();
         jSeparator6 = new javax.swing.JPopupMenu.Separator();
         jMenuItemAbout = new javax.swing.JMenuItem();
-
-        ReallyDelete.setMessage("<html>This will delete all original files. This action is not reversable. Are you sure?<br>(Srsly dude, all files will be gone!)</html>");
 
         jFileChooserInput.setDialogTitle("Select video files and folders");
         jFileChooserInput.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
@@ -820,7 +818,7 @@ public class GUI extends javax.swing.JFrame {
 
         jTabbedPaneSettings.addTab("Input", jPanelInput);
 
-        OutputTypeChooser.add(jRadioButtonSamePlace);
+        outputTypeChooser.add(jRadioButtonSamePlace);
         jRadioButtonSamePlace.setSelected(true);
         jRadioButtonSamePlace.setText("Same Place");
 
@@ -830,7 +828,7 @@ public class GUI extends javax.swing.JFrame {
 
         jButtonRenamePatternHelp.setText("?");
 
-        OutputTypeChooser.add(jRadioButtonDifferentFolder);
+        outputTypeChooser.add(jRadioButtonDifferentFolder);
         jRadioButtonDifferentFolder.setForeground(new java.awt.Color(153, 153, 153));
         jRadioButtonDifferentFolder.setText("Different Folder");
         jRadioButtonDifferentFolder.setEnabled(false);
@@ -892,11 +890,11 @@ public class GUI extends javax.swing.JFrame {
 
         jTabbedPaneSettings.addTab("Output", jPanelOutput);
 
-        SearchPatternChooser.add(jRadioButtonSelectProperties);
+        searchPatternChooser.add(jRadioButtonSelectProperties);
         jRadioButtonSelectProperties.setSelected(true);
         jRadioButtonSelectProperties.setText("Select by File Properties");
 
-        SearchPatternChooser.add(jRadioButtonSelectRegex);
+        searchPatternChooser.add(jRadioButtonSelectRegex);
         jRadioButtonSelectRegex.setForeground(new java.awt.Color(153, 153, 153));
         jRadioButtonSelectRegex.setText("Custom Regex");
         jRadioButtonSelectRegex.setEnabled(false);
@@ -926,12 +924,12 @@ public class GUI extends javax.swing.JFrame {
         jFormattedTextFieldSizeMin.setColumns(7);
         jFormattedTextFieldSizeMin.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jFormattedTextFieldSizeMin.setToolTipText("when activated, files with size lower than this will be ignored");
-        jFormattedTextFieldSizeMin.setValue(new Integer(0));
+        jFormattedTextFieldSizeMin.setValue(Integer.valueOf(0));
 
         jFormattedTextFieldSizeMax.setColumns(7);
         jFormattedTextFieldSizeMax.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
         jFormattedTextFieldSizeMax.setToolTipText("when activated, files with size higher than this will be ignored");
-        jFormattedTextFieldSizeMax.setValue(new Integer(1000000));
+        jFormattedTextFieldSizeMax.setValue(Integer.valueOf(1000000));
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -1027,7 +1025,7 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jTextPaneHandbrakeQuery.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jTextPaneHandbrakeQuery.setFont(new java.awt.Font("Tahoma", 0, 10));
         jTextPaneHandbrakeQuery.setText(" -o \"\"  -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1");
         jScrollPane3.setViewportView(jTextPaneHandbrakeQuery);
 
@@ -1516,9 +1514,6 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Variables declaration - generated by GUI builder">
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.ButtonGroup OutputTypeChooser;
-    private javax.swing.JOptionPane ReallyDelete;
-    private javax.swing.ButtonGroup SearchPatternChooser;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -1615,6 +1610,8 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JTextField jTextFieldRenamePattern;
     private javax.swing.JTextPane jTextPaneHandbrakeQuery;
     private javax.swing.JToolBar jToolBar;
+    private javax.swing.ButtonGroup outputTypeChooser;
+    private javax.swing.ButtonGroup searchPatternChooser;
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
 }

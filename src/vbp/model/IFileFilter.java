@@ -29,11 +29,11 @@ public interface IFileFilter {
      * @param file File to check
      * @return true if the file matches the filter
      */
-    public boolean filter(File file);
+    boolean filter(File file);
     
     /**
      * updates the filter settings
      */
-    public void update();
+    void update();
     
 }

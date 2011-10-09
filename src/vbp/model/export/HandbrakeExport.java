@@ -34,7 +34,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import sebi.util.exception.NotImplementedException;
 
 /**
  * This is the export script to create Handbrake-Queue files out of a list of
@@ -61,14 +61,15 @@ public class HandbrakeExport {
         
         // export in new thread
         Callable<String> callable = new Callable<String>() {
+
             @Override
-            public String call() throws Exception {
+            public String call() {
                 return HandbrakeExport.buildQueue(files, query, renamePattern);
             }
         };
         ExecutorService executor = Executors.newCachedThreadPool();
         Future<String> result = executor.submit(callable);
-        
+
         // open dialogue and write file as soon as export finishes
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             try {

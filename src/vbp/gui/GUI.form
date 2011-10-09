@@ -2,16 +2,9 @@
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="SearchPatternChooser">
+    <Component class="javax.swing.ButtonGroup" name="searchPatternChooser">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="OutputTypeChooser">
-    </Component>
-    <Component class="javax.swing.JOptionPane" name="ReallyDelete">
-      <Properties>
-        <Property name="message" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="&quot;&lt;html&gt;This will delete all original files. This action is not reversable. Are you sure?&lt;br&gt;(Srsly dude, all files will be gone!)&lt;/html&gt;&quot;" type="code"/>
-        </Property>
-      </Properties>
+    <Component class="javax.swing.ButtonGroup" name="outputTypeChooser">
     </Component>
     <Component class="javax.swing.JFileChooser" name="jFileChooserInput">
       <Properties>
@@ -858,7 +851,7 @@
             <Component class="javax.swing.JRadioButton" name="jRadioButtonSamePlace">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                  <ComponentRef name="OutputTypeChooser"/>
+                  <ComponentRef name="outputTypeChooser"/>
                 </Property>
                 <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Same Place"/>
@@ -882,7 +875,7 @@
             <Component class="javax.swing.JRadioButton" name="jRadioButtonDifferentFolder">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                  <ComponentRef name="OutputTypeChooser"/>
+                  <ComponentRef name="outputTypeChooser"/>
                 </Property>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="99" green="99" red="99" type="rgb"/>
@@ -958,7 +951,7 @@
             <Component class="javax.swing.JRadioButton" name="jRadioButtonSelectProperties">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                  <ComponentRef name="SearchPatternChooser"/>
+                  <ComponentRef name="searchPatternChooser"/>
                 </Property>
                 <Property name="selected" type="boolean" value="true"/>
                 <Property name="text" type="java.lang.String" value="Select by File Properties"/>
@@ -967,7 +960,7 @@
             <Component class="javax.swing.JRadioButton" name="jRadioButtonSelectRegex">
               <Properties>
                 <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-                  <ComponentRef name="SearchPatternChooser"/>
+                  <ComponentRef name="searchPatternChooser"/>
                 </Property>
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="99" green="99" red="99" type="rgb"/>
@@ -1098,7 +1091,7 @@
                     <Property name="horizontalAlignment" type="int" value="11"/>
                     <Property name="toolTipText" type="java.lang.String" value="when activated, files with size lower than this will be ignored"/>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new Integer(0)" type="code"/>
+                      <Connection code="Integer.valueOf(0)" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -1108,7 +1101,7 @@
                     <Property name="horizontalAlignment" type="int" value="11"/>
                     <Property name="toolTipText" type="java.lang.String" value="when activated, files with size higher than this will be ignored"/>
                     <Property name="value" type="java.lang.Object" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                      <Connection code="new Integer(1000000)" type="code"/>
+                      <Connection code="Integer.valueOf(1000000)" type="code"/>
                     </Property>
                   </Properties>
                 </Component>
