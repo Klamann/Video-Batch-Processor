@@ -54,10 +54,6 @@ public class GUI extends javax.swing.JFrame {
 
     protected Model model;
     
-    protected String version = "0.1";
-    protected String aboutTitle = "About BatchForHandBrake";
-    protected String aboutText = String.format("<html><p>BatchForHandBrake, version %s</p><p>developed by Sebastian Straub &lt;<a href=sebastian-straub@gmx.net>sebastian-straub@gmx.net</a>&gt;</p></html>", version);
-
     /**
      * GUI-Constructor. Creates a new Instance of the main GUI.
      * @param model 
@@ -66,7 +62,6 @@ public class GUI extends javax.swing.JFrame {
         this.model = model;
 
         setLookAndFeel();
-        setIcon();
         
         initComponents();
         initCustomComponents();
@@ -116,10 +111,12 @@ public class GUI extends javax.swing.JFrame {
         }
     }
     
-    private void setIcon() {
-        URL fooUrl = getClass().getResource("/vbp/assets/icons/video.png");
-        Image fooIcon = new ImageIcon(fooUrl).getImage();
-        this.setIconImage(fooIcon);
+    /**
+     * @return the icon image for the application
+     */
+    private Image getIcon() {
+        URL imageURL = getClass().getResource("/vbp/assets/icons/video.png");
+        return new ImageIcon(imageURL).getImage();
     }
 
     // <editor-fold desc="Shared Actions">
@@ -231,7 +228,7 @@ public class GUI extends javax.swing.JFrame {
         }.start();
     }
     
-    private static void open(URI uri) {
+    private static void openWeb(URI uri) {
         if (Desktop.isDesktopSupported()) {
             Desktop desktop = Desktop.getDesktop();
             try {
@@ -241,6 +238,22 @@ public class GUI extends javax.swing.JFrame {
             }
         } else {
             // TODO: error handling
+        }
+    }
+    
+    private static void openWeb(URL url) {
+        try {
+            openWeb(url.toURI());
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private static void openWeb(String uri) {
+        try {
+            openWeb(new URI(uri));
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -320,9 +333,11 @@ public class GUI extends javax.swing.JFrame {
         jFileChooserProjectLoad = new javax.swing.JFileChooser();
         jFileChooserProjectSave = new javax.swing.JFileChooser();
         jFrameAbout = new javax.swing.JFrame();
-        jButton4 = new javax.swing.JButton();
-        jLabel8 = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
+        jButtonAboutClose = new javax.swing.JButton();
+        jButtonHomepage = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jEditorPaneAboutText = new javax.swing.JEditorPane();
+        jLabelAboutTitle = new javax.swing.JLabel();
         jPanelFileView = new javax.swing.JPanel();
         jScrollPaneFileList = new javax.swing.JScrollPane();
         listModelTranscode = new javax.swing.DefaultListModel<String>();
@@ -427,59 +442,79 @@ public class GUI extends javax.swing.JFrame {
 
         jFrameAbout.setTitle("About VideoBatchProcessor");
         jFrameAbout.setAlwaysOnTop(true);
-        jFrameAbout.setMinimumSize(new java.awt.Dimension(250, 170));
-        jFrameAbout.setResizable(false);
+        jFrameAbout.setIconImage(getIcon());
+        jFrameAbout.setMinimumSize(new java.awt.Dimension(540, 490));
         jFrameAbout.setLocationRelativeTo(null);
 
-        jButton4.setText("Close");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        jButtonAboutClose.setText("Close");
+        jButtonAboutClose.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                jButtonAboutCloseActionPerformed(evt);
             }
         });
 
-        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel8.setText(aboutText);
-        jLabel8.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-
-        jButton5.setBackground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Homepage");
-        jButton5.setBorderPainted(false);
-        jButton5.setOpaque(false);
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        jButtonHomepage.setBackground(new java.awt.Color(255, 255, 255));
+        jButtonHomepage.setText("Homepage");
+        jButtonHomepage.setBorderPainted(false);
+        jButtonHomepage.setOpaque(false);
+        jButtonHomepage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                jButtonHomepageActionPerformed(evt);
             }
         });
+
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        jEditorPaneAboutText.setBorder(null);
+        jEditorPaneAboutText.setContentType("text/html");
+        jEditorPaneAboutText.setEditable(false);
+        jEditorPaneAboutText.setText("<html>\n<p>Video Batch Processor, version 0.1.1 (2011-10-09)<br />\ndeveloped by Sebastian Straub &lt;<a href=\"mailto:sebastian-straub@gmx.net\">sebastian-straub@gmx.net</a>&gt;</p>\n<p>... is a tool that allows you to batch process any video files on your storage devices according to your specific needs. Search for video files matching specific criteria (like name, extension, size) and batch-process them with the video converter of your choice. <a href=\"https://github.com/Klamann/Video-Batch-Processor#readme\">Read more...</a></p>\n<p>For updates, visit the <a href=\"https://github.com/Klamann/Video-Batch-Processor\">Project Homepage</a>.<br />\nFor further information, visit <a href=\"https://github.com/Klamann/Video-Batch-Processor/wiki\">the Wiki</a>.<br />\nFound any bugs? Please report them to the <a href=\"https://github.com/Klamann/Video-Batch-Processor/issues\">Issue Tracker</a>.</p>\n<p>Video Batch Processor is free software, licenced unter the <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>. The source code is hosted on <a href=\"https://github.com/Klamann/Video-Batch-Processor\">GitHub</a>.</p>\n<p>Please note that this is still an early release. It may contain serious bugs, so use it at your own risk. The buttons to functions that are not yet activated are drawn with grey text, so don't mind if nothing happens when you click on them ;D</p>\n</html>");
+        jEditorPaneAboutText.setToolTipText("");
+        jEditorPaneAboutText.setAutoscrolls(false);
+        jEditorPaneAboutText.setOpaque(false);
+        jEditorPaneAboutText.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+                jEditorPaneAboutTextHyperlinkUpdate(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jEditorPaneAboutText);
+        jEditorPaneAboutText.getAccessibleContext().setAccessibleName("");
+
+        jLabelAboutTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelAboutTitle.setText("<html><h2>Video Batch Processor</h2></html>");
 
         javax.swing.GroupLayout jFrameAboutLayout = new javax.swing.GroupLayout(jFrameAbout.getContentPane());
         jFrameAbout.getContentPane().setLayout(jFrameAboutLayout);
         jFrameAboutLayout.setHorizontalGroup(
             jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jFrameAboutLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrameAboutLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                .addGroup(jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
+                    .addComponent(jLabelAboutTitle, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
                     .addGroup(jFrameAboutLayout.createSequentialGroup()
-                        .addComponent(jButton5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 88, Short.MAX_VALUE)
-                        .addComponent(jButton4)))
+                        .addComponent(jButtonHomepage)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 378, Short.MAX_VALUE)
+                        .addComponent(jButtonAboutClose)))
                 .addContainerGap())
         );
         jFrameAboutLayout.setVerticalGroup(
             jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrameAboutLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
+                .addComponent(jLabelAboutTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jFrameAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton5)
-                    .addComponent(jButton4))
+                    .addComponent(jButtonHomepage)
+                    .addComponent(jButtonAboutClose))
                 .addContainerGap())
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Video Batch Processor");
+        setIconImage(getIcon());
         setMinimumSize(new java.awt.Dimension(490, 560));
         setName("mainFrame"); // NOI18N
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -490,10 +525,12 @@ public class GUI extends javax.swing.JFrame {
 
         jPanelFileView.setBorder(javax.swing.BorderFactory.createTitledBorder("Files to transcode"));
 
+        jListTranscode.setToolTipText("");
         jScrollPaneFileList.setViewportView(jListTranscode);
 
         jButtonUp.setForeground(new java.awt.Color(153, 153, 153));
         jButtonUp.setText("↑");
+        jButtonUp.setToolTipText("");
         jButtonUp.setActionCommand("up");
         jButtonUp.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonUp.setMinimumSize(new java.awt.Dimension(42, 23));
@@ -501,6 +538,7 @@ public class GUI extends javax.swing.JFrame {
 
         jButtonDel.setForeground(new java.awt.Color(153, 153, 153));
         jButtonDel.setText("x");
+        jButtonDel.setToolTipText("delete selected file (mutiple selection possible)");
         jButtonDel.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonDel.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonDel.setPreferredSize(new java.awt.Dimension(42, 23));
@@ -543,6 +581,7 @@ public class GUI extends javax.swing.JFrame {
         jButton3.setText("Save List as...");
 
         jButtonClearTranscode.setText("Clear List");
+        jButtonClearTranscode.setToolTipText("");
         jButtonClearTranscode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonClearTranscodeActionPerformed(evt);
@@ -680,6 +719,7 @@ public class GUI extends javax.swing.JFrame {
         jButtonInputUp.setActionCommand("up");
 
         jButtonInputDel.setText("x");
+        jButtonInputDel.setToolTipText("delete selected file (mutiple selection possible)");
         jButtonInputDel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonInputDelActionPerformed(evt);
@@ -696,6 +736,7 @@ public class GUI extends javax.swing.JFrame {
         });
 
         jButtonInputBrowse.setText("Browse");
+        jButtonInputBrowse.setToolTipText("Add (multiple) files or folders");
         jButtonInputBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonInputBrowseActionPerformed(evt);
@@ -704,6 +745,7 @@ public class GUI extends javax.swing.JFrame {
 
         jCheckBoxRecursive.setSelected(true);
         jCheckBoxRecursive.setText("recursive search");
+        jCheckBoxRecursive.setToolTipText("Activate this, when subfolders should be crawled too");
 
         jButtonClearInput.setText("Clear List");
         jButtonClearInput.addActionListener(new java.awt.event.ActionListener() {
@@ -873,6 +915,7 @@ public class GUI extends javax.swing.JFrame {
         jCheckBoxExtension.setText("Extension:");
 
         jTextFieldExtensions.setText("3gp,flv,mov,qt,divx,mkv,asf,wmv,avi,mpg,mpeg,mp2,mp4,m4v,rm,ogg,ogv,yuv");
+        jTextFieldExtensions.setToolTipText("accept only files with one of these extensions");
 
         jButtonSizeHelp.setForeground(new java.awt.Color(153, 153, 153));
         jButtonSizeHelp.setText("?");
@@ -882,10 +925,12 @@ public class GUI extends javax.swing.JFrame {
 
         jFormattedTextFieldSizeMin.setColumns(7);
         jFormattedTextFieldSizeMin.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jFormattedTextFieldSizeMin.setToolTipText("when activated, files with size lower than this will be ignored");
         jFormattedTextFieldSizeMin.setValue(new Integer(0));
 
         jFormattedTextFieldSizeMax.setColumns(7);
         jFormattedTextFieldSizeMax.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
+        jFormattedTextFieldSizeMax.setToolTipText("when activated, files with size higher than this will be ignored");
         jFormattedTextFieldSizeMax.setValue(new Integer(1000000));
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -982,7 +1027,7 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jTextPaneHandbrakeQuery.setFont(new java.awt.Font("Tahoma", 0, 10));
+        jTextPaneHandbrakeQuery.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         jTextPaneHandbrakeQuery.setText(" -o \"\"  -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1");
         jScrollPane3.setViewportView(jTextPaneHandbrakeQuery);
 
@@ -1025,7 +1070,7 @@ public class GUI extends javax.swing.JFrame {
             .addGroup(jPanelEncodingLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(112, Short.MAX_VALUE))
+                .addContainerGap(98, Short.MAX_VALUE))
         );
 
         jTabbedPaneSettings.addTab("Encoding", jPanelEncoding);
@@ -1058,7 +1103,7 @@ public class GUI extends javax.swing.JFrame {
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButtonDeleteAll)
                 .addContainerGap())
         );
@@ -1090,7 +1135,7 @@ public class GUI extends javax.swing.JFrame {
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel10Layout.createSequentialGroup()
                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButtonRenameAll)
                 .addContainerGap())
         );
@@ -1191,8 +1236,12 @@ public class GUI extends javax.swing.JFrame {
         jMenuHelp.setText("Help");
 
         jMenuItemHelp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItemHelp.setForeground(new java.awt.Color(153, 153, 153));
-        jMenuItemHelp.setText("Help");
+        jMenuItemHelp.setText("Help (Online)");
+        jMenuItemHelp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemHelpActionPerformed(evt);
+            }
+        });
         jMenuHelp.add(jMenuItemHelp);
         jMenuHelp.add(jSeparator6);
 
@@ -1431,23 +1480,39 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         saveProject();
     }//GEN-LAST:event_jMenuItemSaveAsActionPerformed
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+    private void jButtonAboutCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAboutCloseActionPerformed
         jFrameAbout.setVisible(false);
-    }//GEN-LAST:event_jButton4ActionPerformed
+    }//GEN-LAST:event_jButtonAboutCloseActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+    private void jButtonHomepageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonHomepageActionPerformed
         new ThreadedExecutor() {
 
             @Override
             public void execute() {
-                try {
-                    open(new URI("https://github.com/Klamann/Video-Batch-Processor"));
-                } catch (URISyntaxException ex) {
-                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                openWeb("https://github.com/Klamann/Video-Batch-Processor");
             }
         }.start();
-    }//GEN-LAST:event_jButton5ActionPerformed
+    }//GEN-LAST:event_jButtonHomepageActionPerformed
+
+    private void jEditorPaneAboutTextHyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {//GEN-FIRST:event_jEditorPaneAboutTextHyperlinkUpdate
+        if (javax.swing.event.HyperlinkEvent.EventType.ACTIVATED.equals(evt.getEventType())) {
+            try {
+                openWeb(evt.getURL().toURI());
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_jEditorPaneAboutTextHyperlinkUpdate
+
+    private void jMenuItemHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemHelpActionPerformed
+        new ThreadedExecutor() {
+
+            @Override
+            public void execute() {
+                openWeb("https://github.com/Klamann/Video-Batch-Processor/wiki");
+            }
+        }.start();
+    }//GEN-LAST:event_jMenuItemHelpActionPerformed
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Variables declaration - generated by GUI builder">
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1457,8 +1522,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButtonAboutClose;
     private javax.swing.JButton jButtonAddFiles;
     private javax.swing.JButton jButtonClearInput;
     private javax.swing.JButton jButtonClearTranscode;
@@ -1469,6 +1533,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButtonExit;
     private javax.swing.JButton jButtonExport;
     private javax.swing.JButton jButtonExtensionHelp;
+    private javax.swing.JButton jButtonHomepage;
     private javax.swing.JButton jButtonInputBrowse;
     private javax.swing.JButton jButtonInputDel;
     private javax.swing.JButton jButtonInputDown;
@@ -1484,6 +1549,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JCheckBox jCheckBoxPreserveFolders;
     private javax.swing.JCheckBox jCheckBoxRecursive;
     private javax.swing.JCheckBox jCheckBoxSize;
+    private javax.swing.JEditorPane jEditorPaneAboutText;
     private javax.swing.JFileChooser jFileChooserExportHandbrake;
     private javax.swing.JFileChooser jFileChooserInput;
     private javax.swing.JFileChooser jFileChooserProjectLoad;
@@ -1498,7 +1564,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabelAboutTitle;
     private javax.swing.JList jListInput;
     private javax.swing.DefaultListModel<String> listModelInput;
     private javax.swing.JList jListTranscode;
@@ -1532,6 +1598,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JRadioButton jRadioButtonSamePlace;
     private javax.swing.JRadioButton jRadioButtonSelectProperties;
     private javax.swing.JRadioButton jRadioButtonSelectRegex;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPaneFileList;
