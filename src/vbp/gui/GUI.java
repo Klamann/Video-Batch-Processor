@@ -829,9 +829,7 @@ public class GUI extends javax.swing.JFrame {
         jButtonRenamePatternHelp.setText("?");
 
         outputTypeChooser.add(jRadioButtonDifferentFolder);
-        jRadioButtonDifferentFolder.setForeground(new java.awt.Color(153, 153, 153));
         jRadioButtonDifferentFolder.setText("Different Folder");
-        jRadioButtonDifferentFolder.setEnabled(false);
 
         jButtonOutputBrowse.setForeground(new java.awt.Color(153, 153, 153));
         jButtonOutputBrowse.setText("Browse");
@@ -841,7 +839,6 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jCheckBoxPreserveFolders.setForeground(new java.awt.Color(153, 153, 153));
         jCheckBoxPreserveFolders.setText("preserve folder structure");
 
         javax.swing.GroupLayout jPanelOutputLayout = new javax.swing.GroupLayout(jPanelOutput);
@@ -895,9 +892,7 @@ public class GUI extends javax.swing.JFrame {
         jRadioButtonSelectProperties.setText("Select by File Properties");
 
         searchPatternChooser.add(jRadioButtonSelectRegex);
-        jRadioButtonSelectRegex.setForeground(new java.awt.Color(153, 153, 153));
         jRadioButtonSelectRegex.setText("Custom Regex");
-        jRadioButtonSelectRegex.setEnabled(false);
 
         jPanel7.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package b4hb.model;
+package vbp.model;
 
 import vbp.model.Model;
 import org.junit.After;

@@ -21,11 +21,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Callable;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +33,7 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
-import sebi.util.exception.NotImplementedException;
+import sebi.util.threads.FutureBuilder;
 
 /**
  * This is the export script to create Handbrake-Queue files out of a list of
@@ -59,24 +58,36 @@ public class HandbrakeExport {
      */
     public static void saveQueue(JFileChooser fileChooser, final List<File> files, final String query, final String renamePattern) {
         
-        // export in new thread
-        Callable<String> callable = new Callable<String>() {
-
+        Future<String> queue = new FutureBuilder<String>() {
             @Override
-            public String call() {
+            public String build() {
                 return HandbrakeExport.buildQueue(files, query, renamePattern);
             }
-        };
-        ExecutorService executor = Executors.newCachedThreadPool();
-        Future<String> result = executor.submit(callable);
-
+        }.getFuture();
+        saveQueueWorker(fileChooser, queue);
+    }
+    
+    // comment
+    public static void saveQueue(JFileChooser fileChooser, final List<File> files, final String query, final File outputFolder, final boolean preserveFolders) {
+        
+        Future<String> queue = new FutureBuilder<String>() {
+            @Override
+            public String build() {
+                return HandbrakeExport.buildQueue(files, query, outputFolder, preserveFolders);
+            }
+        }.getFuture();
+        saveQueueWorker(fileChooser, queue);
+    }
+    
+    // comment
+    protected static void saveQueueWorker(JFileChooser fileChooser, Future<String> queue) {
         // open dialogue and write file as soon as export finishes
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             try {
                 Writer fileWriter = null;
                 try {
                     fileWriter = new FileWriter(fileChooser.getSelectedFile());
-                    fileWriter.write(result.get());
+                    fileWriter.write(queue.get());
                 } catch (IOException ex) {
                     Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
@@ -95,9 +106,8 @@ public class HandbrakeExport {
                 Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
-            executor.shutdown();
+            queue.cancel(true);
         }
-        
     }
 
     /**
@@ -113,8 +123,51 @@ public class HandbrakeExport {
      *        the exact same name, including extension)
      * @return the full query-file as string
      */
-    public static String buildQueue(List<File> files, String query, String renamePattern) {
+    protected static String buildQueue(List<File> files, String query, String renamePattern) {
 
+        Map<File,String> output = new HashMap<File, String>(files.size());
+        for (File input : files) {
+            output.put(input, applyRenamePattern(input, renamePattern, query));
+        }
+        
+        return buildQueueWorker(files, query, output);
+    }
+
+    /**
+     * Generates a Handbrake .queue-File containing all Files passed as an argument
+     * to this method. The files will be transcoded using the given Handbrake-Query.
+     * The transcoded files will be written to the specified location, either all
+     * files in the same folder or the folder structure will be copied into the destination
+     * folder.
+     * @param files all files that shall be transcoded by handbrake
+     * @param query the handbrake query defining the coding settings that shall be
+     *        applied to all files
+     * @param outputFolder the output location
+     * @param preserveStructure false: put all files directly in the output folder,
+     *        true: write the file path to the source file into the output folder
+     * @return the full query-file as string
+     */
+    public static String buildQueue(List<File> files, String query, File outputFolder, boolean preserveStructure) {
+        
+        Map<File,String> output = new HashMap<File, String>(files.size());
+        for (File input : files) {
+            output.put(input, generateOutputFile(input, outputFolder, preserveStructure, query));
+        }
+        
+        return buildQueueWorker(files, query, output);
+    }
+    
+    /**
+     * Abstraction of the queue-Generator. Needs a map of Input files to output
+     * file as input. This must be generated by the specific users of this method.
+     * @param input all files that shall be transcoded by handbrake
+     * @param query the handbrake query defining the coding settings that shall be
+     *        applied to all files
+     * @param output a map containing the exact output location for every file
+     * @return the full query-file as string
+     */
+    private static String buildQueueWorker(List<File> input, String query, Map<File,String> output) {
+        
         // basic document
         Document doc = buildBasicDocument();
         Element root = doc.getRootElement();
@@ -124,11 +177,11 @@ public class HandbrakeExport {
         String title = "1";
         boolean customQuery = true;
 
-        for (File file : files) {
+        for (File file : input) {
             try {
                 // build missing contents
                 String source = file.getCanonicalPath();
-                String destination = applyRenamePattern(file, renamePattern, query);
+                String destination = output.get(file);
 
                 // build job wrapper in xml
                 Element job = new Element("Job");
@@ -155,13 +208,6 @@ public class HandbrakeExport {
         System.out.println(XMLUtil.xmlToString(doc, Format.getPrettyFormat()));
 
         return XMLUtil.xmlToString(doc, Format.getPrettyFormat());
-    }
-
-    /**
-     * not yet implemented!
-     */
-    public static String buildQeue(List<File> files, String query, File destination, boolean preserveStructure) {
-        throw new NotImplementedException();
     }
 
     // ++++++++++ static xml stuff ++++++++++
@@ -206,15 +252,71 @@ public class HandbrakeExport {
     protected static String applyRenamePattern(File source, String pattern, String query) {
         
         // gather properties
-        String fullName = source.getName();
+        String fullName = removeExtension(source.getName());
         String path = source.getParent();
         
-        // get filename, remove extension, replace generics (e.g. {name} )
-        int extIndex = fullName.lastIndexOf('.');
-        String nameSource = fullName.substring(0, extIndex);
-        String name = pattern.replaceAll("\\{name\\}", nameSource);
+        // replace generics (e.g. {name} )
+        String name = pattern.replaceAll("\\{name\\}", fullName);
         
-        // extract file extension from handbrake-query
+        return composeOutput(path, name, query);
+    }
+    
+    /**
+     * Generates the location of the output file, when using a specific folder for
+     * the output. Can flatten the output (so all files go into the output folder)
+     * or replicate the folder structure to the input file in the output file folder
+     * @param input the input file
+     * @param outputFolder the user defined output folder
+     * @param preserveStructure false: put all files directly in the output folder,
+     *        true: write the file path to the source file into the output folder
+     * @param query the handbrake query
+     * @return the destination file path, with correct extension.
+     */
+    protected static String generateOutputFile(File input, File outputFolder, boolean preserveStructure, String query) {
+        
+        String fileName = removeExtension(input.getName());
+        String path = outputFolder.getPath();
+        
+        if (preserveStructure) {
+            String pathParent = path;
+            String pathChild = input.getParent().replaceAll(":", "");
+            File pathBoth = new File(String.format("%s/%s", pathParent, pathChild));
+            path = pathBoth.getPath();
+        }
+        
+        return composeOutput(path, fileName, query);
+    }
+    
+    /**
+     * Composes the correct output String from the filepath, the filename and the
+     * Handbrake-Query (to determine the file extension).
+     * So all you have to do is to find out where you wanna locate your file and what
+     * name it shall have.
+     * @param path absolute path to your destonation file's parent folder
+     * @param name name of your destination file (without extension)
+     * @param query the unchanged Handbrake-query
+     * @return the complete file path (canonical, as string)
+     */
+    protected static String composeOutput(String path, String name, String query) {
+        // add correct file extension
+        String ext = extractFileExtension(query);
+        File result = new File(String.format("%s/%s.%s", path, name, ext));
+        
+        // generate canocial path
+        try {
+            return result.getCanonicalPath();
+        } catch (IOException ex) {
+            // backup: just put strings together
+            return String.format("%s%s.%s", path, name, ext);
+        }
+    }
+    
+    /**
+     * Extract the file extension for the transcoded file from the Handbrake-query
+     * @param query Handbrake-query
+     * @return file extension for the file to transcode
+     */
+    protected static String extractFileExtension(String query) {
         int formatBegin = query.indexOf("-f ") + 3;
         while(query.charAt(formatBegin) == ' ') {
             formatBegin++;
@@ -223,15 +325,24 @@ public class HandbrakeExport {
         while(query.charAt(formatEnd) != ' ') {
             formatEnd++;
         }
-        String ext = query.substring(formatBegin, formatEnd);
-        
-        // full file path with new filename and extension according to handbrake-query
-        File result = new File(String.format("%s/%s.%s", path, name, ext));
-        try {
-            return result.getCanonicalPath();
-        } catch (IOException ex) {
-            Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return String.format("%s%s.%s", path, name, ext);
+        return query.substring(formatBegin, formatEnd);
     }
+    
+    /**
+     * removes the file extension from a file name, if the name has an extension.
+     * If not the unchanged filename will be returned
+     * @param fileName name of the file as String (use File.getName() to get it)
+     * @return filename without extension
+     */
+    protected static String removeExtension(String fileName) {
+        if (fileName.contains(".")) {
+            // remove file extension
+            int extIndex = fileName.lastIndexOf('.');
+            String pureName = fileName.substring(0, extIndex);
+            return pureName;
+        }
+        // file has no extension -> return unchanged
+        return fileName;
+    }
+    
 }

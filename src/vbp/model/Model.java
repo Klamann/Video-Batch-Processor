@@ -64,6 +64,7 @@ public class Model {
     protected String regex;
     
     // encoding
+    /** cleaned Handbrake-Query (without -i and -o args) **/
     protected String handBrakeQuery;
     
     // </editor-fold>
@@ -204,11 +205,15 @@ public class Model {
     // ------------- export -------------
     
     public void exportToHandbrake(JFileChooser fileChooser) {
+        // TODO throw fail events to gui (separate) when items are malformed
         
-        // get current query and renamepattern
-        // throw fail events to gui (separate) when items are malformed
-        
-        HandbrakeExport.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, renamePattern);
+        switch(outputMethod) {
+            case INPLACE:
+                HandbrakeExport.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, renamePattern);
+                break;
+            case SPECIFIC_FOLDER:
+                HandbrakeExport.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, outputLocation, preserveFolders);
+        }
     }
     
     // ------------- general -------------
