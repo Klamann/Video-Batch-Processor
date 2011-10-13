@@ -22,6 +22,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import sebi.util.system.Platform;
 import static org.junit.Assert.*;
 
 /**
@@ -29,6 +30,14 @@ import static org.junit.Assert.*;
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class HandbrakeExportTest {
+    
+    @BeforeClass
+    public static void setUpClass() {
+        if(!Platform.isWindows()) {
+            input = new File("/home/movies/video.avi");
+            output = new File("/home/movies/output");
+        }
+    }
     
     private static String query = "-f mkv --strict-anamorphic -e x264 -q 25 -a 1"
             + " -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1";
@@ -40,8 +49,13 @@ public class HandbrakeExportTest {
     
     @Test
     public void testComposeOutput() {
-        String result = HandbrakeExport.composeOutput("C:/movies/test", "video", query);
-        assertEquals("C:\\movies\\test\\video.mkv", result);
+        if(!Platform.isWindows()) {
+            String result = HandbrakeExport.composeOutput("/home/movies/test", "video", query);
+            assertEquals("/home/movies/test/video.mkv", result);
+        } else {
+            String result = HandbrakeExport.composeOutput("C:/movies/test", "video", query);
+            assertEquals("C:\\movies\\test\\video.mkv", result);
+        }
     }
     
     @Test
@@ -53,16 +67,31 @@ public class HandbrakeExportTest {
     @Test
     public void testGenerateOutputFileUseRename() {
         String result = HandbrakeExport.applyRenamePattern(input, "{name}-change", query);
-        assertEquals("C:\\movies\\test\\video-change.mkv", result);
+        
+        if(!Platform.isWindows()) {
+            assertEquals("/home/movies/video-change.mkv", result);
+        } else {
+            assertEquals("C:\\movies\\test\\video-change.mkv", result);
+        }
+        
     }
     
     @Test
     public void testGenerateOutputFileUseFolder() {
         String flatten = HandbrakeExport.generateOutputFile(input, output, false, query);
-        assertEquals("C:\\movies\\output\\video.mkv", flatten);
+        if(!Platform.isWindows()) {
+            assertEquals("/home/movies/output/video.mkv", flatten);
+        } else {
+            assertEquals("C:\\movies\\output\\video.mkv", flatten);
+        }
         
         String preserve = HandbrakeExport.generateOutputFile(input, output, true, query);
-        assertEquals("C:\\movies\\output\\C\\movies\\test\\video.mkv", preserve);
+        if(!Platform.isWindows()) {
+            assertEquals("/home/movies/output/home/movies/video.mkv", preserve);
+        } else {
+            assertEquals("C:\\movies\\output\\C\\movies\\test\\video.mkv", preserve);
+        }
+        
     }
     
     @Test
@@ -71,9 +100,4 @@ public class HandbrakeExportTest {
         assertEquals("this.is.the.filename", pureName);
     }
     
-//    @Test
-//    public void test() {
-//        
-//    }
-
 }
