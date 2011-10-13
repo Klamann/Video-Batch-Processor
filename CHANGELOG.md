@@ -2,6 +2,7 @@ Changelog
 =========
 
 0.1.2 (2011-10-13)
+------------------
 
 * File extension support when loading and saving files
 * Copy file list to clipboard
