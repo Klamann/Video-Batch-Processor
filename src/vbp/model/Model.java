@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import sebi.util.data.Clipboard;
 import sebi.util.data.ListUtils;
 import sebi.util.observer.EventArgs;
+import vbp.gui.FileFilters;
 
 /**
  * The Model class holds the main program logic. All user settings are stored
@@ -111,7 +113,7 @@ public class Model {
      */
     public void saveProject(JFileChooser fileChooser) {
         if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
-            Settings.writeProject(this, fileChooser.getSelectedFile());
+            Settings.writeProject(this, FileFilters.enforceFileExtension(fileChooser.getSelectedFile(), "vbpp"));
         }
     }
     
@@ -150,6 +152,10 @@ public class Model {
      */
     public List<String> getFilesToTranscode() {
         return filesToCanocialPath(filesToTranscode);
+    }
+    
+    public void copyToClipboard() {
+        Clipboard.setClipboardString(toSimpleFileList(filesToTranscode));
     }
     
     // ------------- input -------------
@@ -485,6 +491,21 @@ public class Model {
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="static methods">
+    
+    public static String toSimpleFileList(List<File> list) {
+        
+        StringBuilder build = new StringBuilder(list.size());
+        for (File file : list) {
+            try {
+                build.append(file.getCanonicalPath());
+                build.append('\n');
+            } catch (IOException ex) {
+                Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+        return build.toString();
+    }
     
     public static List<String> filesToCanocialPath(List<File> files) {
         List<String> list = new ArrayList<String>();

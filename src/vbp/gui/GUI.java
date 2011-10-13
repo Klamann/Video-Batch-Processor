@@ -167,6 +167,8 @@ public class GUI extends javax.swing.JFrame {
         model.setRenamePattern(jTextFieldRenamePattern.getText());
         if(!jTextFieldDifferentFolder.getText().isEmpty()) {
             model.setOutputLocation(new File(jTextFieldDifferentFolder.getText()));
+        } else {
+            model.setOutputLocation(null);      // remove entry
         }
         model.setPreserveFolders(jCheckBoxPreserveFolders.isSelected());
         
@@ -203,6 +205,13 @@ public class GUI extends javax.swing.JFrame {
                     model.addInputFiles(jFileChooserInput.getSelectedFiles());
                 }
             }.start();
+        }
+    }
+    
+    protected void browseOutput() {
+        if (jFileChooserOutput.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            model.setOutputLocation(jFileChooserOutput.getSelectedFile());
+            jTextFieldDifferentFolder.setText(model.getOutputLocation());
         }
     }
 
@@ -338,6 +347,7 @@ public class GUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jEditorPaneAboutText = new javax.swing.JEditorPane();
         jLabelAboutTitle = new javax.swing.JLabel();
+        jFileChooserOutput = new javax.swing.JFileChooser();
         jPanelFileView = new javax.swing.JPanel();
         jScrollPaneFileList = new javax.swing.JScrollPane();
         listModelTranscode = new javax.swing.DefaultListModel<String>();
@@ -345,10 +355,10 @@ public class GUI extends javax.swing.JFrame {
         jButtonUp = new javax.swing.JButton();
         jButtonDel = new javax.swing.JButton();
         jButtonDown = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        jButtonRescan = new javax.swing.JButton();
+        jProgressBarScan = new javax.swing.JProgressBar();
+        jButtonCopyToClipboard = new javax.swing.JButton();
+        jButtonSaveListAs = new javax.swing.JButton();
         jButtonClearTranscode = new javax.swing.JButton();
         jToolBar = new javax.swing.JToolBar();
         jButtonLoadProject = new javax.swing.JButton();
@@ -393,6 +403,10 @@ public class GUI extends javax.swing.JFrame {
         jButtonExtensionHelp = new javax.swing.JButton();
         jFormattedTextFieldSizeMin = new javax.swing.JFormattedTextField();
         jFormattedTextFieldSizeMax = new javax.swing.JFormattedTextField();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jComboBox1 = new javax.swing.JComboBox();
+        jTextField1 = new javax.swing.JTextField();
+        jButtonExtensionHelp1 = new javax.swing.JButton();
         jTextFieldRegex = new javax.swing.JTextField();
         jPanelEncoding = new javax.swing.JPanel();
         jPanel11 = new javax.swing.JPanel();
@@ -431,12 +445,15 @@ public class GUI extends javax.swing.JFrame {
 
         jFileChooserExportHandbrake.setDialogTitle("Save as Handbrake-Queue");
         jFileChooserExportHandbrake.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        jFileChooserExportHandbrake.setFileFilter(FileFilters.handbrakeQueueFilter());
 
         jFileChooserProjectLoad.setDialogTitle("Select a vbp-Project");
+        jFileChooserProjectLoad.setFileFilter(FileFilters.projectFilter());
         jFileChooserProjectLoad.setMultiSelectionEnabled(true);
 
         jFileChooserProjectSave.setDialogTitle("Save vbs-Project");
         jFileChooserProjectSave.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        jFileChooserProjectSave.setFileFilter(FileFilters.projectFilter());
 
         jFrameAbout.setTitle("About VideoBatchProcessor");
         jFrameAbout.setAlwaysOnTop(true);
@@ -510,6 +527,10 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        jFileChooserOutput.setDialogTitle("Choose the output location for transcoded video files");
+        jFileChooserOutput.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
+        jFileChooserOutput.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Video Batch Processor");
         setIconImage(getIcon());
@@ -558,25 +579,24 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Rescan");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonRescan.setText("Rescan");
+        jButtonRescan.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jButtonRescanActionPerformed(evt);
             }
         });
 
-        jProgressBar1.setPreferredSize(new java.awt.Dimension(146, 23));
+        jProgressBarScan.setPreferredSize(new java.awt.Dimension(146, 23));
 
-        jButton2.setForeground(new java.awt.Color(153, 153, 153));
-        jButton2.setText("Copy to Clipboard");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        jButtonCopyToClipboard.setText("Copy to Clipboard");
+        jButtonCopyToClipboard.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                jButtonCopyToClipboardActionPerformed(evt);
             }
         });
 
-        jButton3.setForeground(new java.awt.Color(153, 153, 153));
-        jButton3.setText("Save List as...");
+        jButtonSaveListAs.setForeground(new java.awt.Color(153, 153, 153));
+        jButtonSaveListAs.setText("Save List as...");
 
         jButtonClearTranscode.setText("Clear List");
         jButtonClearTranscode.setToolTipText("");
@@ -597,13 +617,13 @@ public class GUI extends javax.swing.JFrame {
                     .addGroup(jPanelFileViewLayout.createSequentialGroup()
                         .addComponent(jButtonClearTranscode)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 162, Short.MAX_VALUE)
-                        .addComponent(jButton2)
+                        .addComponent(jButtonCopyToClipboard)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3))
+                        .addComponent(jButtonSaveListAs))
                     .addGroup(jPanelFileViewLayout.createSequentialGroup()
-                        .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
+                        .addComponent(jProgressBarScan, javax.swing.GroupLayout.DEFAULT_SIZE, 392, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)))
+                        .addComponent(jButtonRescan)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelFileViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jButtonDown, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -630,13 +650,13 @@ public class GUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelFileViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanelFileViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton3)
-                        .addComponent(jButton2))
+                        .addComponent(jButtonSaveListAs)
+                        .addComponent(jButtonCopyToClipboard))
                     .addComponent(jButtonClearTranscode))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelFileViewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton1))
+                    .addComponent(jProgressBarScan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonRescan))
                 .addContainerGap())
         );
 
@@ -831,7 +851,6 @@ public class GUI extends javax.swing.JFrame {
         outputTypeChooser.add(jRadioButtonDifferentFolder);
         jRadioButtonDifferentFolder.setText("Different Folder");
 
-        jButtonOutputBrowse.setForeground(new java.awt.Color(153, 153, 153));
         jButtonOutputBrowse.setText("Browse");
         jButtonOutputBrowse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -926,6 +945,14 @@ public class GUI extends javax.swing.JFrame {
         jFormattedTextFieldSizeMax.setToolTipText("when activated, files with size higher than this will be ignored");
         jFormattedTextFieldSizeMax.setValue(Integer.valueOf(1000000));
 
+        jCheckBox1.setText("Name:");
+        jCheckBox1.setEnabled(false);
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "contains", "begins with", "ends with" }));
+
+        jButtonExtensionHelp1.setForeground(new java.awt.Color(153, 153, 153));
+        jButtonExtensionHelp1.setText("?");
+
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
         jPanel7Layout.setHorizontalGroup(
@@ -934,9 +961,16 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jCheckBoxExtension)
-                    .addComponent(jCheckBoxSize))
+                    .addComponent(jCheckBoxSize)
+                    .addComponent(jCheckBox1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createSequentialGroup()
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButtonExtensionHelp1))
                     .addGroup(jPanel7Layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -972,10 +1006,17 @@ public class GUI extends javax.swing.JFrame {
                     .addComponent(jCheckBoxExtension)
                     .addComponent(jTextFieldExtensions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonExtensionHelp))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonExtensionHelp1))
+                    .addComponent(jCheckBox1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextFieldRegex.setFont(new java.awt.Font("Courier New", 0, 12));
+        jTextFieldRegex.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
         jTextFieldRegex.setText(".*(\\.(avi|mkv|mp4))");
         jTextFieldRegex.setPreferredSize(new java.awt.Dimension(139, 22));
 
@@ -983,13 +1024,13 @@ public class GUI extends javax.swing.JFrame {
         jPanelSearchPattern.setLayout(jPanelSearchPatternLayout);
         jPanelSearchPatternLayout.setHorizontalGroup(
             jPanelSearchPatternLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSearchPatternLayout.createSequentialGroup()
+            .addGroup(jPanelSearchPatternLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelSearchPatternLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jTextFieldRegex, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
-                    .addComponent(jRadioButtonSelectRegex, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jRadioButtonSelectProperties, javax.swing.GroupLayout.Alignment.LEADING))
+                .addGroup(jPanelSearchPatternLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextFieldRegex, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
+                    .addComponent(jRadioButtonSelectRegex)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jRadioButtonSelectProperties))
                 .addContainerGap())
         );
         jPanelSearchPatternLayout.setVerticalGroup(
@@ -998,12 +1039,12 @@ public class GUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jRadioButtonSelectProperties)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jRadioButtonSelectRegex)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldRegex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(73, Short.MAX_VALUE))
+                .addContainerGap(43, Short.MAX_VALUE))
         );
 
         jTabbedPaneSettings.addTab("Search Pattern", jPanelSearchPattern);
@@ -1386,7 +1427,7 @@ private void jButtonInputBrowseActionPerformed(java.awt.event.ActionEvent evt) {
 }//GEN-LAST:event_jButtonInputBrowseActionPerformed
 
 private void jButtonOutputBrowseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOutputBrowseActionPerformed
-// TODO add your handling code here:
+    browseOutput();
 }//GEN-LAST:event_jButtonOutputBrowseActionPerformed
 
 private void jButtonDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteAllActionPerformed
@@ -1413,9 +1454,9 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     loadDefaults();
 }//GEN-LAST:event_jMenuItemNewActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void jButtonCopyToClipboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCopyToClipboardActionPerformed
+        model.copyToClipboard();
+    }//GEN-LAST:event_jButtonCopyToClipboardActionPerformed
 
     private void jButtonExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExportActionPerformed
         exportToHandbrake();
@@ -1438,7 +1479,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         jFrameAbout.setVisible(true);
     }//GEN-LAST:event_jMenuItemAboutActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButtonRescanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRescanActionPerformed
         new ThreadedExecutor() {
 
             @Override
@@ -1447,7 +1488,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
                 model.updateFilesToTranscode();
             }
         }.start();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_jButtonRescanActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         safeExit();
@@ -1509,13 +1550,11 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Variables declaration - generated by GUI builder">
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButtonAboutClose;
     private javax.swing.JButton jButtonAddFiles;
     private javax.swing.JButton jButtonClearInput;
     private javax.swing.JButton jButtonClearTranscode;
+    private javax.swing.JButton jButtonCopyToClipboard;
     private javax.swing.JButton jButtonDel;
     private javax.swing.JButton jButtonDeleteAll;
     private javax.swing.JButton jButtonDown;
@@ -1523,6 +1562,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButtonExit;
     private javax.swing.JButton jButtonExport;
     private javax.swing.JButton jButtonExtensionHelp;
+    private javax.swing.JButton jButtonExtensionHelp1;
     private javax.swing.JButton jButtonHomepage;
     private javax.swing.JButton jButtonInputBrowse;
     private javax.swing.JButton jButtonInputDel;
@@ -1532,16 +1572,21 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButtonOutputBrowse;
     private javax.swing.JButton jButtonRenameAll;
     private javax.swing.JButton jButtonRenamePatternHelp;
+    private javax.swing.JButton jButtonRescan;
+    private javax.swing.JButton jButtonSaveListAs;
     private javax.swing.JButton jButtonSaveProject;
     private javax.swing.JButton jButtonSizeHelp;
     private javax.swing.JButton jButtonUp;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBoxExtension;
     private javax.swing.JCheckBox jCheckBoxPreserveFolders;
     private javax.swing.JCheckBox jCheckBoxRecursive;
     private javax.swing.JCheckBox jCheckBoxSize;
+    private javax.swing.JComboBox jComboBox1;
     private javax.swing.JEditorPane jEditorPaneAboutText;
     private javax.swing.JFileChooser jFileChooserExportHandbrake;
     private javax.swing.JFileChooser jFileChooserInput;
+    private javax.swing.JFileChooser jFileChooserOutput;
     private javax.swing.JFileChooser jFileChooserProjectLoad;
     private javax.swing.JFileChooser jFileChooserProjectSave;
     private javax.swing.JFormattedTextField jFormattedTextFieldSizeMax;
@@ -1583,7 +1628,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JPanel jPanelInput;
     private javax.swing.JPanel jPanelOutput;
     private javax.swing.JPanel jPanelSearchPattern;
-    private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JProgressBar jProgressBarScan;
     private javax.swing.JRadioButton jRadioButtonDifferentFolder;
     private javax.swing.JRadioButton jRadioButtonSamePlace;
     private javax.swing.JRadioButton jRadioButtonSelectProperties;
@@ -1599,6 +1644,7 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JPopupMenu.Separator jSeparator6;
     private javax.swing.JTabbedPane jTabbedPaneSettings;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextFieldDifferentFolder;
     private javax.swing.JTextField jTextFieldExtensions;
     private javax.swing.JTextField jTextFieldRegex;

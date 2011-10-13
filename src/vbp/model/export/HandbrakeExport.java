@@ -34,6 +34,7 @@ import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.Format;
 import sebi.util.threads.FutureBuilder;
+import vbp.gui.FileFilters;
 
 /**
  * This is the export script to create Handbrake-Queue files out of a list of
@@ -86,7 +87,7 @@ public class HandbrakeExport {
             try {
                 Writer fileWriter = null;
                 try {
-                    fileWriter = new FileWriter(fileChooser.getSelectedFile());
+                    fileWriter = new FileWriter(FileFilters.enforceFileExtension(fileChooser.getSelectedFile(), "queue"));
                     fileWriter.write(queue.get());
                 } catch (IOException ex) {
                     Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
