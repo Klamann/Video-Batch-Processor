@@ -339,8 +339,7 @@ public class HandbrakeExport {
         if (fileName.contains(".")) {
             // remove file extension
             int extIndex = fileName.lastIndexOf('.');
-            String pureName = fileName.substring(0, extIndex);
-            return pureName;
+            return fileName.substring(0, extIndex);
         }
         // file has no extension -> return unchanged
         return fileName;

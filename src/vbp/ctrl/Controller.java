@@ -31,11 +31,13 @@ public class Controller {
     
     public Controller() {
         
+        // initialize the model
         model = new Model();
         model.init();
         
+        // initialize the gui
         gui = new GUI(model);
-        gui.setVisible(true);
+        gui.init();
         
     }
     
