@@ -29,12 +29,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import net.java.balloontip.BalloonTip;
 import net.java.balloontip.positioners.BalloonTipPositioner;
 import net.java.balloontip.positioners.LeftAbovePositioner;
@@ -50,7 +47,7 @@ import sebi.util.threads.ThreadedExecutor;
  * 
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
-public class WindowMain extends javax.swing.JFrame {
+public class WindowMain extends javax.swing.JFrame implements Saveable {
 
     protected Model model;
     protected GUI gui;
@@ -68,6 +65,8 @@ public class WindowMain extends javax.swing.JFrame {
         initEvents();
         setInitialValues();
     }
+    
+    // <editor-fold desc="GUI manipulation">
 
     /**
      * initialize the gui elements with values from the model.
@@ -92,46 +91,10 @@ public class WindowMain extends javax.swing.JFrame {
         jFormattedTextFieldSizeMin.setValue(model.getMinSize());
         jFormattedTextFieldSizeMax.setValue(model.getMaxSize());
         jTextFieldRegex.setText(model.getRegex());
-
-        // encoding
-        jTextPaneHandbrakeQuery.setText(model.getHandBrakeQuery());
     }
     
-    // <editor-fold desc="Main Window Actions">
-    
-    protected void safeExit() {
-        updateModelValues();
-        model.safeExit();
-    }
-
-    protected void updateInputFiles() {
-        List<String> files = model.getInputFiles();
-        listModelInput.clear();
-        for (String file : files) {
-            listModelInput.addElement(file);
-        }
-    }
-
-    protected void updateTranscodeFiles() {
-        List<String> files = model.getFilesToTranscode();
-        listModelTranscode.clear();
-        for (String file : files) {
-            listModelTranscode.addElement(file);
-        }
-    }
-
-    protected void exportToHandbrake() {
-        new ThreadedExecutor() {
-
-            @Override
-            public void execute() {
-                updateModelValues();
-                model.exportToHandbrake(jFileChooserExportHandbrake);
-            }
-        }.start();
-    }
-
-    protected void updateModelValues() {
+    @Override
+    public void updateModelValues() {
         
         // input
         model.setRecursive(jCheckBoxRecursive.isSelected());
@@ -162,15 +125,17 @@ public class WindowMain extends javax.swing.JFrame {
         model.setMinSize((Integer) jFormattedTextFieldSizeMin.getValue());
         model.setMaxSize((Integer) jFormattedTextFieldSizeMax.getValue());
         model.setRegex(jTextFieldRegex.getText());
-        
-        // encoding
-        model.setHandBrakeQuery(jTextPaneHandbrakeQuery.getText());
     }
     
-    protected void updateGuiValues() {
+    @Override
+    public void updateGuiValues() {
         setInitialValues();
         updateInputFiles();
         updateTranscodeFiles();
+    }
+    
+    private void runProgressBar(boolean bar) {
+        jProgressBarScan.setIndeterminate(bar);
     }
     
     /**
@@ -179,9 +144,44 @@ public class WindowMain extends javax.swing.JFrame {
     protected Image getIcon() {
         return gui.getIcon();
     }
+    
+    // </editor-fold>
+    // <editor-fold desc="GUI Actions">
+    
+    @Override
+    public void safeExit() {
+        updateModelValues();
+        model.safeExit();
+    }
 
+    /**
+     * Replace the list view of the input files in the GUI with the current
+     * model values
+     */
+    protected void updateInputFiles() {
+        List<String> files = model.getInputFiles();
+        listModelInput.clear();
+        for (String file : files) {
+            listModelInput.addElement(file);
+        }
+    }
+
+    /**
+     * Replace the list view of the files to transcode in the GUI with the
+     * current model values
+     */
+    protected void updateTranscodeFiles() {
+        List<String> files = model.getFilesToTranscode();
+        listModelTranscode.clear();
+        for (String file : files) {
+            listModelTranscode.addElement(file);
+        }
+        jProgressBarScan.setIndeterminate(false);
+    }
+    
     protected void browseInput() {
         if (jFileChooserInput.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+            runProgressBar(true);
             new ThreadedExecutor() {
 
                 @Override
@@ -193,34 +193,44 @@ public class WindowMain extends javax.swing.JFrame {
         }
     }
     
+    protected void removeInput() {
+        runProgressBar(true);
+        new ThreadedExecutor() {
+
+            @Override
+            public void execute() {
+                int[] selected = jListInput.getSelectedIndices();
+
+                String[] files = new String[selected.length];
+                for (int i = 0; i < selected.length; i++) {
+                    files[i] = listModelInput.get(selected[i]);
+                }
+
+                model.removeInputFiles(files);
+            }
+        }.start();
+    }
+    
     protected void browseOutput() {
         if (jFileChooserOutput.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
             model.setOutputLocation(jFileChooserOutput.getSelectedFile());
             jTextFieldDifferentFolder.setText(model.getOutputLocation());
         }
     }
-
-    protected void loadDefaults() {
-        // run on swing thread!
-        model.loadDefaults();
-        updateGuiValues();
-    }
-
-    protected void loadProject() {
-        // run on swing thread!
-        model.loadProject(jFileChooserProjectLoad);
-        updateGuiValues();
-    }
     
-    protected void saveProject() {
+    protected void rescan() {
+        runProgressBar(true);
         new ThreadedExecutor() {
+
             @Override
             public void execute() {
                 updateModelValues();
-                model.saveProject(jFileChooserProjectSave);
+                model.updateFilesToTranscode();
             }
         }.start();
     }
+    
+    
     
     private static void openWeb(URI uri) {
         if (Desktop.isDesktopSupported()) {
@@ -251,11 +261,10 @@ public class WindowMain extends javax.swing.JFrame {
             Logger.getLogger(WindowMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
-
-    // </editor-fold>
     
+    // </editor-fold>
     // <editor-fold desc="Model-Events">
+    
     private void initEvents() {
         model.eventUpdateGUI().addObserver(onUpdateGUI());
     }
@@ -287,6 +296,7 @@ public class WindowMain extends javax.swing.JFrame {
                             @Override
                             public void run() {
                                 updateTranscodeFiles();
+                                runProgressBar(false);
                             }
                         });
                         break;
@@ -309,8 +319,9 @@ public class WindowMain extends javax.swing.JFrame {
             }
         };
     }
+    
     // </editor-fold>
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -323,7 +334,6 @@ public class WindowMain extends javax.swing.JFrame {
         searchPatternChooser = new javax.swing.ButtonGroup();
         outputTypeChooser = new javax.swing.ButtonGroup();
         jFileChooserInput = new javax.swing.JFileChooser();
-        jFileChooserExportHandbrake = new javax.swing.JFileChooser();
         jFileChooserProjectLoad = new javax.swing.JFileChooser();
         jFileChooserProjectSave = new javax.swing.JFileChooser();
         jFrameAbout = new javax.swing.JFrame();
@@ -347,16 +357,17 @@ public class WindowMain extends javax.swing.JFrame {
         jButtonClearTranscode = new javax.swing.JButton();
         jToolBar = new javax.swing.JToolBar();
         jButtonLoadProject = new javax.swing.JButton();
+        jButtonSaveProject = new javax.swing.JButton();
         jButtonAddFiles = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JToolBar.Separator();
-        jButtonSaveProject = new javax.swing.JButton();
-        jButtonExport = new javax.swing.JButton();
+        jButtonExportHandbrake = new javax.swing.JButton();
+        jButtonExportFFmpeg = new javax.swing.JButton();
         jSeparator2 = new javax.swing.JToolBar.Separator();
         jButtonExit = new javax.swing.JButton();
         jTabbedPaneSettings = new javax.swing.JTabbedPane();
         jPanelInput = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jPanelSearch = new javax.swing.JPanel();
+        jScrollPaneInput = new javax.swing.JScrollPane();
         listModelInput = new javax.swing.DefaultListModel<String>();
         jListInput = new javax.swing.JList(listModelInput);
         jButtonInputUp = new javax.swing.JButton();
@@ -367,7 +378,7 @@ public class WindowMain extends javax.swing.JFrame {
         jButtonClearInput = new javax.swing.JButton();
         jPanelOutput = new javax.swing.JPanel();
         jRadioButtonSamePlace = new javax.swing.JRadioButton();
-        jLabel1 = new javax.swing.JLabel();
+        jLabelRenamePattern = new javax.swing.JLabel();
         jTextFieldRenamePattern = new javax.swing.JTextField();
         jButtonRenamePatternHelp = new javax.swing.JButton();
         jRadioButtonDifferentFolder = new javax.swing.JRadioButton();
@@ -377,10 +388,10 @@ public class WindowMain extends javax.swing.JFrame {
         jPanelSearchPattern = new javax.swing.JPanel();
         jRadioButtonSelectProperties = new javax.swing.JRadioButton();
         jRadioButtonSelectRegex = new javax.swing.JRadioButton();
-        jPanel7 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jPanelProperties = new javax.swing.JPanel();
+        jLabelSizeFrom = new javax.swing.JLabel();
+        jLabelSizeTo = new javax.swing.JLabel();
+        jLabelSizeMb = new javax.swing.JLabel();
         jCheckBoxSize = new javax.swing.JCheckBox();
         jCheckBoxExtension = new javax.swing.JCheckBox();
         jTextFieldExtensions = new javax.swing.JTextField();
@@ -388,23 +399,17 @@ public class WindowMain extends javax.swing.JFrame {
         jButtonExtensionHelp = new javax.swing.JButton();
         jFormattedTextFieldSizeMin = new javax.swing.JFormattedTextField();
         jFormattedTextFieldSizeMax = new javax.swing.JFormattedTextField();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jComboBox1 = new javax.swing.JComboBox();
-        jTextField1 = new javax.swing.JTextField();
-        jButtonExtensionHelp1 = new javax.swing.JButton();
+        jCheckBoxName = new javax.swing.JCheckBox();
+        jComboBoxNameSearchType = new javax.swing.JComboBox();
+        jTextFieldSearch = new javax.swing.JTextField();
+        jButtonSearchHelp = new javax.swing.JButton();
         jTextFieldRegex = new javax.swing.JTextField();
-        jPanelEncoding = new javax.swing.JPanel();
-        jPanel11 = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jButtonEncodingHelp = new javax.swing.JButton();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextPaneHandbrakeQuery = new javax.swing.JTextPane();
         jPanelCleanup = new javax.swing.JPanel();
-        jPanel9 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
+        jPanelDeleteFiles = new javax.swing.JPanel();
+        jLabelDeleteFiles = new javax.swing.JLabel();
         jButtonDeleteAll = new javax.swing.JButton();
-        jPanel10 = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
+        jPanelRenameFiles = new javax.swing.JPanel();
+        jLabelRenameFiles = new javax.swing.JLabel();
         jButtonRenameAll = new javax.swing.JButton();
         jMenuBar = new javax.swing.JMenuBar();
         jMenuFile = new javax.swing.JMenu();
@@ -415,13 +420,11 @@ public class WindowMain extends javax.swing.JFrame {
         jSeparator4 = new javax.swing.JPopupMenu.Separator();
         jMenuItemSave = new javax.swing.JMenuItem();
         jMenuItemSaveAs = new javax.swing.JMenuItem();
-        jMenuExport = new javax.swing.JMenu();
-        jMenuItemHandbrake = new javax.swing.JMenuItem();
         jSeparator5 = new javax.swing.JPopupMenu.Separator();
         jMenuItemExit = new javax.swing.JMenuItem();
         jMenu1 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItemExportFFmpeg = new javax.swing.JMenuItem();
+        jMenuItemExportHandbrake = new javax.swing.JMenuItem();
         jMenuHelp = new javax.swing.JMenu();
         jMenuItemHelp = new javax.swing.JMenuItem();
         jSeparator6 = new javax.swing.JPopupMenu.Separator();
@@ -430,10 +433,6 @@ public class WindowMain extends javax.swing.JFrame {
         jFileChooserInput.setDialogTitle("Select video files and folders");
         jFileChooserInput.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
         jFileChooserInput.setMultiSelectionEnabled(true);
-
-        jFileChooserExportHandbrake.setDialogTitle("Save as Handbrake-Queue");
-        jFileChooserExportHandbrake.setDialogType(javax.swing.JFileChooser.SAVE_DIALOG);
-        jFileChooserExportHandbrake.setFileFilter(FileFilters.handbrakeQueueFilter());
 
         jFileChooserProjectLoad.setDialogTitle("Select a vbp-Project");
         jFileChooserProjectLoad.setFileFilter(FileFilters.projectFilter());
@@ -456,10 +455,7 @@ public class WindowMain extends javax.swing.JFrame {
             }
         });
 
-        jButtonHomepage.setBackground(new java.awt.Color(255, 255, 255));
         jButtonHomepage.setText("Homepage");
-        jButtonHomepage.setBorderPainted(false);
-        jButtonHomepage.setOpaque(false);
         jButtonHomepage.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonHomepageActionPerformed(evt);
@@ -471,7 +467,7 @@ public class WindowMain extends javax.swing.JFrame {
         jEditorPaneAboutText.setBorder(null);
         jEditorPaneAboutText.setContentType("text/html");
         jEditorPaneAboutText.setEditable(false);
-        jEditorPaneAboutText.setText("<html>\n<p>Video Batch Processor, version 0.1.1 (2011-10-09)<br />\ndeveloped by Sebastian Straub &lt;<a href=\"mailto:sebastian-straub@gmx.net\">sebastian-straub@gmx.net</a>&gt;</p>\n<p>... is a tool that allows you to batch process any video files on your storage devices according to your specific needs. Search for video files matching specific criteria (like name, extension, size) and batch-process them with the video converter of your choice. <a href=\"https://github.com/Klamann/Video-Batch-Processor#readme\">Read more...</a></p>\n<p>For updates, visit the <a href=\"https://github.com/Klamann/Video-Batch-Processor\">Project Homepage</a>.<br />\nFor further information, visit <a href=\"https://github.com/Klamann/Video-Batch-Processor/wiki\">the Wiki</a>.<br />\nFound any bugs? Please report them to the <a href=\"https://github.com/Klamann/Video-Batch-Processor/issues\">Issue Tracker</a>.</p>\n<p>Video Batch Processor is free software, licenced unter the <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>. The source code is hosted on <a href=\"https://github.com/Klamann/Video-Batch-Processor\">GitHub</a>.</p>\n<p>Please note that this is still an early release. It may contain serious bugs, so use it at your own risk. The buttons to functions that are not yet activated are drawn with grey text, so don't mind if nothing happens when you click on them ;D</p>\n</html>");
+        jEditorPaneAboutText.setText("<html>\n<p>Video Batch Processor, version 0.1.1 (2011-10-09)<br />\ndeveloped by Sebastian Straub &lt;<a href=\"mailto:sebastian-straub@gmx.net\">sebastian-straub@gmx.net</a>&gt;</p>\n<p>... is a tool that allows you to batch process any video files on your storage devices according to your specific needs. Search for video files matching specific criteria (like name, extension, size) and batch-process them with the video converter of your choice. <a href=\"https://github.com/Klamann/Video-Batch-Processor#readme\">Read more...</a></p>\n<p>For updates, visit the <a href=\"https://github.com/Klamann/Video-Batch-Processor\">Project Homepage</a>.<br />\nFor further information, visit <a href=\"https://github.com/Klamann/Video-Batch-Processor/wiki\">the Wiki</a>.<br />\nFound any bugs? Please report them to the <a href=\"https://github.com/Klamann/Video-Batch-Processor/issues\">Issue Tracker</a>.</p>\n<p>Video Batch Processor is free software, licenced unter the <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GPLv3</a>. The source code is hosted on <a href=\"https://github.com/Klamann/Video-Batch-Processor\">GitHub</a>.</p>\n<p>Please note that this is still an early release. It may contain serious bugs, so use it at your own risk. The functionality behind some buttons is not yet implemented, these are grayed-out. Have a lookout for upcoming releases, if you need them :)</p>\n</html>");
         jEditorPaneAboutText.setToolTipText("");
         jEditorPaneAboutText.setAutoscrolls(false);
         jEditorPaneAboutText.setOpaque(false);
@@ -536,17 +532,17 @@ public class WindowMain extends javax.swing.JFrame {
         jListTranscode.setToolTipText("");
         jScrollPaneFileList.setViewportView(jListTranscode);
 
-        jButtonUp.setForeground(new java.awt.Color(153, 153, 153));
         jButtonUp.setText("↑");
-        jButtonUp.setToolTipText("");
+        jButtonUp.setToolTipText("move selection up");
         jButtonUp.setActionCommand("up");
+        jButtonUp.setEnabled(false);
         jButtonUp.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonUp.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonUp.setPreferredSize(new java.awt.Dimension(42, 23));
 
-        jButtonDel.setForeground(new java.awt.Color(153, 153, 153));
         jButtonDel.setText("x");
-        jButtonDel.setToolTipText("delete selected file (mutiple selection possible)");
+        jButtonDel.setToolTipText("remove selected file from list (mutiple selection possible)");
+        jButtonDel.setEnabled(false);
         jButtonDel.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonDel.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonDel.setPreferredSize(new java.awt.Dimension(42, 23));
@@ -556,9 +552,10 @@ public class WindowMain extends javax.swing.JFrame {
             }
         });
 
-        jButtonDown.setForeground(new java.awt.Color(153, 153, 153));
         jButtonDown.setText("↓");
+        jButtonDown.setToolTipText("move selection down");
         jButtonDown.setActionCommand("down");
+        jButtonDown.setEnabled(false);
         jButtonDown.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonDown.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonDown.setPreferredSize(new java.awt.Dimension(42, 23));
@@ -584,8 +581,8 @@ public class WindowMain extends javax.swing.JFrame {
             }
         });
 
-        jButtonSaveListAs.setForeground(new java.awt.Color(153, 153, 153));
         jButtonSaveListAs.setText("Save List as...");
+        jButtonSaveListAs.setEnabled(false);
 
         jButtonClearTranscode.setText("Clear List");
         jButtonClearTranscode.setToolTipText("");
@@ -666,19 +663,6 @@ public class WindowMain extends javax.swing.JFrame {
         });
         jToolBar.add(jButtonLoadProject);
 
-        jButtonAddFiles.setText("Add");
-        jButtonAddFiles.setToolTipText("Add (multiple) files or folders");
-        jButtonAddFiles.setFocusable(false);
-        jButtonAddFiles.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonAddFiles.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonAddFiles.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonAddFilesActionPerformed(evt);
-            }
-        });
-        jToolBar.add(jButtonAddFiles);
-        jToolBar.add(jSeparator1);
-
         jButtonSaveProject.setText("Save");
         jButtonSaveProject.setToolTipText("Save the currently opened project");
         jButtonSaveProject.setFocusable(false);
@@ -691,17 +675,41 @@ public class WindowMain extends javax.swing.JFrame {
         });
         jToolBar.add(jButtonSaveProject);
 
-        jButtonExport.setText("Export");
-        jButtonExport.setToolTipText("Export the current project to a Handbrake-Queue");
-        jButtonExport.setFocusable(false);
-        jButtonExport.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButtonExport.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButtonExport.addActionListener(new java.awt.event.ActionListener() {
+        jButtonAddFiles.setText("Add Files");
+        jButtonAddFiles.setToolTipText("Add (multiple) files or folders");
+        jButtonAddFiles.setFocusable(false);
+        jButtonAddFiles.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonAddFiles.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonAddFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonExportActionPerformed(evt);
+                jButtonAddFilesActionPerformed(evt);
             }
         });
-        jToolBar.add(jButtonExport);
+        jToolBar.add(jButtonAddFiles);
+        jToolBar.add(jSeparator1);
+
+        jButtonExportHandbrake.setText("Handbrake");
+        jButtonExportHandbrake.setToolTipText("Export the current project to a Handbrake-Queue");
+        jButtonExportHandbrake.setFocusable(false);
+        jButtonExportHandbrake.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonExportHandbrake.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonExportHandbrake.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonExportHandbrakeActionPerformed(evt);
+            }
+        });
+        jToolBar.add(jButtonExportHandbrake);
+
+        jButtonExportFFmpeg.setText("FFmpeg");
+        jButtonExportFFmpeg.setFocusable(false);
+        jButtonExportFFmpeg.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButtonExportFFmpeg.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButtonExportFFmpeg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonExportFFmpegActionPerformed(evt);
+            }
+        });
+        jToolBar.add(jButtonExportFFmpeg);
         jToolBar.add(jSeparator2);
 
         jButtonExit.setText("Exit");
@@ -716,20 +724,21 @@ public class WindowMain extends javax.swing.JFrame {
         });
         jToolBar.add(jButtonExit);
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Folders to Search"));
+        jPanelSearch.setBorder(javax.swing.BorderFactory.createTitledBorder("Folders to Search"));
 
         jListInput.setToolTipText("Single video files and folders where video files will be searched in, according to your filter rules");
-        jScrollPane2.setViewportView(jListInput);
+        jScrollPaneInput.setViewportView(jListInput);
 
-        jButtonInputUp.setForeground(new java.awt.Color(153, 153, 153));
         jButtonInputUp.setText("↑");
+        jButtonInputUp.setToolTipText("move selection up");
         jButtonInputUp.setActionCommand("up");
+        jButtonInputUp.setEnabled(false);
         jButtonInputUp.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonInputUp.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonInputUp.setPreferredSize(new java.awt.Dimension(42, 23));
 
         jButtonInputDel.setText("x");
-        jButtonInputDel.setToolTipText("delete selected file (mutiple selection possible)");
+        jButtonInputDel.setToolTipText("remove selected file from list (mutiple selection possible)");
         jButtonInputDel.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonInputDel.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonInputDel.setPreferredSize(new java.awt.Dimension(42, 23));
@@ -739,9 +748,10 @@ public class WindowMain extends javax.swing.JFrame {
             }
         });
 
-        jButtonInputDown.setForeground(new java.awt.Color(153, 153, 153));
         jButtonInputDown.setText("↓");
+        jButtonInputDown.setToolTipText("move selection down");
         jButtonInputDown.setActionCommand("down");
+        jButtonInputDown.setEnabled(false);
         jButtonInputDown.setMaximumSize(new java.awt.Dimension(42, 23));
         jButtonInputDown.setMinimumSize(new java.awt.Dimension(42, 23));
         jButtonInputDown.setPreferredSize(new java.awt.Dimension(42, 23));
@@ -770,54 +780,54 @@ public class WindowMain extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelSearchLayout = new javax.swing.GroupLayout(jPanelSearch);
+        jPanelSearch.setLayout(jPanelSearchLayout);
+        jPanelSearchLayout.setHorizontalGroup(
+            jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSearchLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSearchLayout.createSequentialGroup()
                         .addComponent(jButtonClearInput)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
                         .addComponent(jCheckBoxRecursive)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonInputBrowse)
                         .addGap(48, 48, 48))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelSearchLayout.createSequentialGroup()
+                        .addComponent(jScrollPaneInput, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jButtonInputUp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButtonInputDel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButtonInputDown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
 
-        jPanel6Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonInputDel, jButtonInputDown, jButtonInputUp});
+        jPanelSearchLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {jButtonInputDel, jButtonInputDown, jButtonInputUp});
 
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        jPanelSearchLayout.setVerticalGroup(
+            jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelSearchLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel6Layout.createSequentialGroup()
+                .addGroup(jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelSearchLayout.createSequentialGroup()
                         .addComponent(jButtonInputUp, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonInputDel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonInputDown, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPaneInput, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelSearchLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButtonInputBrowse, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jCheckBoxRecursive))
                     .addComponent(jButtonClearInput))
                 .addContainerGap())
         );
 
-        jPanel6Layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonInputDel, jButtonInputDown, jButtonInputUp});
+        jPanelSearchLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {jButtonInputDel, jButtonInputDown, jButtonInputUp});
 
         javax.swing.GroupLayout jPanelInputLayout = new javax.swing.GroupLayout(jPanelInput);
         jPanelInput.setLayout(jPanelInputLayout);
@@ -825,14 +835,14 @@ public class WindowMain extends javax.swing.JFrame {
             jPanelInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelInputLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanelSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanelInputLayout.setVerticalGroup(
             jPanelInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelInputLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -842,7 +852,7 @@ public class WindowMain extends javax.swing.JFrame {
         jRadioButtonSamePlace.setSelected(true);
         jRadioButtonSamePlace.setText("Same Place");
 
-        jLabel1.setText("Rename Pattern:");
+        jLabelRenamePattern.setText("Rename Pattern:");
 
         jTextFieldRenamePattern.setText("{name}-conv");
 
@@ -875,7 +885,7 @@ public class WindowMain extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelOutputLayout.createSequentialGroup()
                         .addGroup(jPanelOutputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelOutputLayout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addComponent(jLabelRenamePattern)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jTextFieldRenamePattern, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE))
                             .addComponent(jTextFieldDifferentFolder, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE))
@@ -892,7 +902,7 @@ public class WindowMain extends javax.swing.JFrame {
                 .addGroup(jPanelOutputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRadioButtonSamePlace)
                     .addComponent(jTextFieldRenamePattern, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1)
+                    .addComponent(jLabelRenamePattern)
                     .addComponent(jButtonRenamePatternHelp))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanelOutputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -913,13 +923,13 @@ public class WindowMain extends javax.swing.JFrame {
         searchPatternChooser.add(jRadioButtonSelectRegex);
         jRadioButtonSelectRegex.setText("Custom Regex");
 
-        jPanel7.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanelProperties.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        jLabel2.setText("from");
+        jLabelSizeFrom.setText("from");
 
-        jLabel3.setText("MB to");
+        jLabelSizeTo.setText("MB to");
 
-        jLabel4.setText("MB");
+        jLabelSizeMb.setText("MB");
 
         jCheckBoxSize.setText("Size:");
 
@@ -929,11 +939,11 @@ public class WindowMain extends javax.swing.JFrame {
         jTextFieldExtensions.setText("3gp,flv,mov,qt,divx,mkv,asf,wmv,avi,mpg,mpeg,mp2,mp4,m4v,rm,ogg,ogv,yuv");
         jTextFieldExtensions.setToolTipText("accept only files with one of these extensions");
 
-        jButtonSizeHelp.setForeground(new java.awt.Color(153, 153, 153));
         jButtonSizeHelp.setText("?");
+        jButtonSizeHelp.setEnabled(false);
 
-        jButtonExtensionHelp.setForeground(new java.awt.Color(153, 153, 153));
         jButtonExtensionHelp.setText("?");
+        jButtonExtensionHelp.setEnabled(false);
 
         jFormattedTextFieldSizeMin.setColumns(7);
         jFormattedTextFieldSizeMin.setHorizontalAlignment(javax.swing.JTextField.TRAILING);
@@ -945,80 +955,79 @@ public class WindowMain extends javax.swing.JFrame {
         jFormattedTextFieldSizeMax.setToolTipText("when activated, files with size higher than this will be ignored");
         jFormattedTextFieldSizeMax.setValue(Integer.valueOf(1000000));
 
-        jCheckBox1.setText("Name:");
-        jCheckBox1.setEnabled(false);
+        jCheckBoxName.setText("Name:");
+        jCheckBoxName.setEnabled(false);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "contains", "begins with", "ends with" }));
+        jComboBoxNameSearchType.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "contains", "begins with", "ends with" }));
 
-        jButtonExtensionHelp1.setForeground(new java.awt.Color(153, 153, 153));
-        jButtonExtensionHelp1.setText("?");
+        jButtonSearchHelp.setText("?");
+        jButtonSearchHelp.setEnabled(false);
 
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelPropertiesLayout = new javax.swing.GroupLayout(jPanelProperties);
+        jPanelProperties.setLayout(jPanelPropertiesLayout);
+        jPanelPropertiesLayout.setHorizontalGroup(
+            jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelPropertiesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jCheckBoxExtension)
                     .addComponent(jCheckBoxSize)
-                    .addComponent(jCheckBox1))
+                    .addComponent(jCheckBoxName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelPropertiesLayout.createSequentialGroup()
+                        .addComponent(jComboBoxNameSearchType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+                        .addComponent(jTextFieldSearch, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButtonExtensionHelp1))
-                    .addGroup(jPanel7Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
+                        .addComponent(jButtonSearchHelp))
+                    .addGroup(jPanelPropertiesLayout.createSequentialGroup()
+                        .addComponent(jLabelSizeFrom)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jFormattedTextFieldSizeMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel3)
+                        .addComponent(jLabelSizeTo)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jFormattedTextFieldSizeMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel4)
+                        .addComponent(jLabelSizeMb)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 177, Short.MAX_VALUE)
                         .addComponent(jButtonSizeHelp))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelPropertiesLayout.createSequentialGroup()
                         .addComponent(jTextFieldExtensions, javax.swing.GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
                         .addGap(18, 18, 18)
                         .addComponent(jButtonExtensionHelp)))
                 .addContainerGap())
         );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
+        jPanelPropertiesLayout.setVerticalGroup(
+            jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelPropertiesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxSize)
-                    .addComponent(jLabel2)
+                    .addComponent(jLabelSizeFrom)
                     .addComponent(jButtonSizeHelp)
                     .addComponent(jFormattedTextFieldSizeMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3)
+                    .addComponent(jLabelSizeTo)
                     .addComponent(jFormattedTextFieldSizeMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4))
+                    .addComponent(jLabelSizeMb))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jCheckBoxExtension)
                     .addComponent(jTextFieldExtensions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonExtensionHelp))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButtonExtensionHelp1))
-                    .addComponent(jCheckBox1))
+                .addGroup(jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelPropertiesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jComboBoxNameSearchType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jTextFieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jButtonSearchHelp))
+                    .addComponent(jCheckBoxName))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextFieldRegex.setFont(new java.awt.Font("Courier New", 0, 12));
+        jTextFieldRegex.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
         jTextFieldRegex.setText(".*(\\.(avi|mkv|mp4))");
-        jTextFieldRegex.setPreferredSize(new java.awt.Dimension(139, 22));
 
         javax.swing.GroupLayout jPanelSearchPatternLayout = new javax.swing.GroupLayout(jPanelSearchPattern);
         jPanelSearchPattern.setLayout(jPanelSearchPatternLayout);
@@ -1029,7 +1038,7 @@ public class WindowMain extends javax.swing.JFrame {
                 .addGroup(jPanelSearchPatternLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jTextFieldRegex, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
                     .addComponent(jRadioButtonSelectRegex)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelProperties, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jRadioButtonSelectProperties))
                 .addContainerGap())
         );
@@ -1039,136 +1048,76 @@ public class WindowMain extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jRadioButtonSelectProperties)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelProperties, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jRadioButtonSelectRegex)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldRegex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         jTabbedPaneSettings.addTab("Search Pattern", jPanelSearchPattern);
 
-        jPanel11.setBorder(javax.swing.BorderFactory.createTitledBorder("Enter Handbrake-Query"));
+        jPanelDeleteFiles.setBorder(javax.swing.BorderFactory.createTitledBorder("Delete Files"));
 
-        jLabel7.setText("<html>Enter your preferred transcoding-settings in Handbrake, generate a query for these and paste them in the textarea below. All files will be encoded with these settings</html>");
+        jLabelDeleteFiles.setText("<html>Delete all files currently in the list. This can be useful if you already have transcoded all files and want to get rid of oversized originals.</html>");
+        jLabelDeleteFiles.setAutoscrolls(true);
 
-        jButtonEncodingHelp.setForeground(new java.awt.Color(153, 153, 153));
-        jButtonEncodingHelp.setText("?");
-        jButtonEncodingHelp.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonEncodingHelpActionPerformed(evt);
-            }
-        });
-
-        jTextPaneHandbrakeQuery.setFont(new java.awt.Font("Tahoma", 0, 10));
-        jTextPaneHandbrakeQuery.setText(" -o \"\"  -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1");
-        jScrollPane3.setViewportView(jTextPaneHandbrakeQuery);
-
-        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
-        jPanel11.setLayout(jPanel11Layout);
-        jPanel11Layout.setHorizontalGroup(
-            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel11Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel11Layout.createSequentialGroup()
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButtonEncodingHelp)))
-                .addContainerGap())
-        );
-        jPanel11Layout.setVerticalGroup(
-            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel11Layout.createSequentialGroup()
-                .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButtonEncodingHelp)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout jPanelEncodingLayout = new javax.swing.GroupLayout(jPanelEncoding);
-        jPanelEncoding.setLayout(jPanelEncodingLayout);
-        jPanelEncodingLayout.setHorizontalGroup(
-            jPanelEncodingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelEncodingLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        jPanelEncodingLayout.setVerticalGroup(
-            jPanelEncodingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelEncodingLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(98, Short.MAX_VALUE))
-        );
-
-        jTabbedPaneSettings.addTab("Encoding", jPanelEncoding);
-
-        jPanel9.setBorder(javax.swing.BorderFactory.createTitledBorder("Delete Files"));
-
-        jLabel5.setText("<html>Delete all files currently in the list. This can be useful if you already have transcoded all files and want to get rid of oversized originals.</html>");
-        jLabel5.setAutoscrolls(true);
-
-        jButtonDeleteAll.setForeground(new java.awt.Color(153, 153, 153));
         jButtonDeleteAll.setText("Delete all original files");
+        jButtonDeleteAll.setEnabled(false);
         jButtonDeleteAll.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonDeleteAllActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
-        jPanel9.setLayout(jPanel9Layout);
-        jPanel9Layout.setHorizontalGroup(
-            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelDeleteFilesLayout = new javax.swing.GroupLayout(jPanelDeleteFiles);
+        jPanelDeleteFiles.setLayout(jPanelDeleteFilesLayout);
+        jPanelDeleteFilesLayout.setHorizontalGroup(
+            jPanelDeleteFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelDeleteFilesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+                .addGroup(jPanelDeleteFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelDeleteFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
                     .addComponent(jButtonDeleteAll))
                 .addContainerGap())
         );
-        jPanel9Layout.setVerticalGroup(
-            jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jPanelDeleteFilesLayout.setVerticalGroup(
+            jPanelDeleteFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelDeleteFilesLayout.createSequentialGroup()
+                .addComponent(jLabelDeleteFiles, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonDeleteAll)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel10.setBorder(javax.swing.BorderFactory.createTitledBorder("Rename Files"));
+        jPanelRenameFiles.setBorder(javax.swing.BorderFactory.createTitledBorder("Rename Files"));
 
-        jLabel6.setText("<html>Rename all transcoded files back to the original file names, after the original files have been deleted (see above)</html>");
+        jLabelRenameFiles.setText("<html>Rename all transcoded files back to the original file names, after the original files have been deleted (see above)</html>");
 
-        jButtonRenameAll.setForeground(new java.awt.Color(153, 153, 153));
         jButtonRenameAll.setText("Rename all transcoded files");
+        jButtonRenameAll.setEnabled(false);
         jButtonRenameAll.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonRenameAllActionPerformed(evt);
             }
         });
 
-        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
-        jPanel10.setLayout(jPanel10Layout);
-        jPanel10Layout.setHorizontalGroup(
-            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel10Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelRenameFilesLayout = new javax.swing.GroupLayout(jPanelRenameFiles);
+        jPanelRenameFiles.setLayout(jPanelRenameFilesLayout);
+        jPanelRenameFilesLayout.setHorizontalGroup(
+            jPanelRenameFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelRenameFilesLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
+                .addGroup(jPanelRenameFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabelRenameFiles, javax.swing.GroupLayout.DEFAULT_SIZE, 488, Short.MAX_VALUE)
                     .addComponent(jButtonRenameAll))
                 .addContainerGap())
         );
-        jPanel10Layout.setVerticalGroup(
-            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel10Layout.createSequentialGroup()
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jPanelRenameFilesLayout.setVerticalGroup(
+            jPanelRenameFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelRenameFilesLayout.createSequentialGroup()
+                .addComponent(jLabelRenameFiles, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonRenameAll)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -1181,18 +1130,18 @@ public class WindowMain extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelCleanupLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanelCleanupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel9, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jPanelRenameFiles, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelDeleteFiles, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanelCleanupLayout.setVerticalGroup(
             jPanelCleanupLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelCleanupLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanelDeleteFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addComponent(jPanelRenameFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(65, Short.MAX_VALUE))
         );
 
         jTabbedPaneSettings.addTab("Cleanup", jPanelCleanup);
@@ -1229,8 +1178,8 @@ public class WindowMain extends javax.swing.JFrame {
         jMenuFile.add(jSeparator4);
 
         jMenuItemSave.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItemSave.setForeground(new java.awt.Color(153, 153, 153));
         jMenuItemSave.setText("Save");
+        jMenuItemSave.setEnabled(false);
         jMenuFile.add(jMenuItemSave);
 
         jMenuItemSaveAs.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
@@ -1241,19 +1190,6 @@ public class WindowMain extends javax.swing.JFrame {
             }
         });
         jMenuFile.add(jMenuItemSaveAs);
-
-        jMenuExport.setText("Export");
-
-        jMenuItemHandbrake.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItemHandbrake.setText("Handbrake-Queue");
-        jMenuItemHandbrake.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItemHandbrakeActionPerformed(evt);
-            }
-        });
-        jMenuExport.add(jMenuItemHandbrake);
-
-        jMenuFile.add(jMenuExport);
         jMenuFile.add(jSeparator5);
 
         jMenuItemExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
@@ -1269,13 +1205,18 @@ public class WindowMain extends javax.swing.JFrame {
 
         jMenu1.setText("Export");
 
-        jMenuItem1.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem1.setText("FFmpeg");
-        jMenu1.add(jMenuItem1);
+        jMenuItemExportFFmpeg.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItemExportFFmpeg.setText("FFmpeg");
+        jMenu1.add(jMenuItemExportFFmpeg);
 
-        jMenuItem2.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
-        jMenuItem2.setText("Handbrake");
-        jMenu1.add(jMenuItem2);
+        jMenuItemExportHandbrake.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_H, java.awt.event.InputEvent.SHIFT_MASK | java.awt.event.InputEvent.CTRL_MASK));
+        jMenuItemExportHandbrake.setText("Handbrake");
+        jMenuItemExportHandbrake.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemExportHandbrakeActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItemExportHandbrake);
 
         jMenuBar.add(jMenu1);
 
@@ -1414,20 +1355,7 @@ private void jButtonClearInputActionPerformed(java.awt.event.ActionEvent evt) {/
 }//GEN-LAST:event_jButtonClearInputActionPerformed
 
 private void jButtonInputDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonInputDelActionPerformed
-    new ThreadedExecutor() {
-
-        @Override
-        public void execute() {
-            int[] selected = jListInput.getSelectedIndices();
-
-            String[] files = new String[selected.length];
-            for (int i = 0; i < selected.length; i++) {
-                files[i] = listModelInput.get(selected[i]);
-            }
-
-            model.removeInputFiles(files);
-        }
-    }.start();
+    removeInput();
 }//GEN-LAST:event_jButtonInputDelActionPerformed
 
 private void jButtonInputDownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonInputDownActionPerformed
@@ -1451,32 +1379,24 @@ private void jButtonRenameAllActionPerformed(java.awt.event.ActionEvent evt) {//
 }//GEN-LAST:event_jButtonRenameAllActionPerformed
 
 private void jButtonSaveProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSaveProjectActionPerformed
-    saveProject();
+    gui.saveProject();
 }//GEN-LAST:event_jButtonSaveProjectActionPerformed
-
-private void jButtonEncodingHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonEncodingHelpActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_jButtonEncodingHelpActionPerformed
 
 private void jMenuItemExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemExitActionPerformed
     safeExit();
 }//GEN-LAST:event_jMenuItemExitActionPerformed
 
 private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemNewActionPerformed
-    loadDefaults();
+    gui.loadDefaults();
 }//GEN-LAST:event_jMenuItemNewActionPerformed
 
     private void jButtonCopyToClipboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCopyToClipboardActionPerformed
         model.copyToClipboard();
     }//GEN-LAST:event_jButtonCopyToClipboardActionPerformed
 
-    private void jButtonExportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExportActionPerformed
-        exportToHandbrake();
-    }//GEN-LAST:event_jButtonExportActionPerformed
-
-    private void jMenuItemHandbrakeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemHandbrakeActionPerformed
-        exportToHandbrake();
-    }//GEN-LAST:event_jMenuItemHandbrakeActionPerformed
+    private void jButtonExportHandbrakeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExportHandbrakeActionPerformed
+        gui.popupWindowHandbrake();
+    }//GEN-LAST:event_jButtonExportHandbrakeActionPerformed
 
     private void jButtonClearTranscodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonClearTranscodeActionPerformed
         model.clearFilesToTranscode();
@@ -1487,19 +1407,11 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }//GEN-LAST:event_jButtonExitActionPerformed
 
     private void jMenuItemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemAboutActionPerformed
-//        JOptionPane.showMessageDialog(null, aboutText, aboutTitle, JOptionPane.INFORMATION_MESSAGE);
         jFrameAbout.setVisible(true);
     }//GEN-LAST:event_jMenuItemAboutActionPerformed
 
     private void jButtonRescanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRescanActionPerformed
-        new ThreadedExecutor() {
-
-            @Override
-            public void execute() {
-                updateModelValues();
-                model.updateFilesToTranscode();
-            }
-        }.start();
+        rescan();
     }//GEN-LAST:event_jButtonRescanActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -1515,15 +1427,15 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }//GEN-LAST:event_jMenuItemOpenFilesActionPerformed
 
     private void jButtonLoadProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLoadProjectActionPerformed
-        loadProject();
+        gui.loadProject();
     }//GEN-LAST:event_jButtonLoadProjectActionPerformed
 
     private void jMenuItemOpenProjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemOpenProjectActionPerformed
-        loadProject();
+        gui.loadProject();
     }//GEN-LAST:event_jMenuItemOpenProjectActionPerformed
 
     private void jMenuItemSaveAsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSaveAsActionPerformed
-        saveProject();
+        gui.saveProject();
     }//GEN-LAST:event_jMenuItemSaveAsActionPerformed
 
     private void jButtonAboutCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAboutCloseActionPerformed
@@ -1559,6 +1471,14 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             }
         }.start();
     }//GEN-LAST:event_jMenuItemHelpActionPerformed
+
+    private void jMenuItemExportHandbrakeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemExportHandbrakeActionPerformed
+        gui.popupWindowHandbrake();
+    }//GEN-LAST:event_jMenuItemExportHandbrakeActionPerformed
+
+    private void jButtonExportFFmpegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExportFFmpegActionPerformed
+        gui.popupWindowFFmpeg();
+    }//GEN-LAST:event_jButtonExportFFmpegActionPerformed
     // </editor-fold>
     // <editor-fold defaultstate="collapsed" desc="Variables declaration - generated by WindowMain builder">
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -1570,11 +1490,10 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButtonDel;
     private javax.swing.JButton jButtonDeleteAll;
     private javax.swing.JButton jButtonDown;
-    private javax.swing.JButton jButtonEncodingHelp;
     private javax.swing.JButton jButtonExit;
-    private javax.swing.JButton jButtonExport;
+    private javax.swing.JButton jButtonExportFFmpeg;
+    private javax.swing.JButton jButtonExportHandbrake;
     private javax.swing.JButton jButtonExtensionHelp;
-    private javax.swing.JButton jButtonExtensionHelp1;
     private javax.swing.JButton jButtonHomepage;
     private javax.swing.JButton jButtonInputBrowse;
     private javax.swing.JButton jButtonInputDel;
@@ -1587,61 +1506,56 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton jButtonRescan;
     private javax.swing.JButton jButtonSaveListAs;
     private javax.swing.JButton jButtonSaveProject;
+    private javax.swing.JButton jButtonSearchHelp;
     private javax.swing.JButton jButtonSizeHelp;
     private javax.swing.JButton jButtonUp;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBoxExtension;
+    private javax.swing.JCheckBox jCheckBoxName;
     private javax.swing.JCheckBox jCheckBoxPreserveFolders;
     private javax.swing.JCheckBox jCheckBoxRecursive;
     private javax.swing.JCheckBox jCheckBoxSize;
-    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JComboBox jComboBoxNameSearchType;
     private javax.swing.JEditorPane jEditorPaneAboutText;
-    private javax.swing.JFileChooser jFileChooserExportHandbrake;
     private javax.swing.JFileChooser jFileChooserInput;
     private javax.swing.JFileChooser jFileChooserOutput;
-    private javax.swing.JFileChooser jFileChooserProjectLoad;
-    private javax.swing.JFileChooser jFileChooserProjectSave;
+    protected javax.swing.JFileChooser jFileChooserProjectLoad;
+    protected javax.swing.JFileChooser jFileChooserProjectSave;
     private javax.swing.JFormattedTextField jFormattedTextFieldSizeMax;
     private javax.swing.JFormattedTextField jFormattedTextFieldSizeMin;
     private javax.swing.JFrame jFrameAbout;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabelAboutTitle;
+    private javax.swing.JLabel jLabelDeleteFiles;
+    private javax.swing.JLabel jLabelRenameFiles;
+    private javax.swing.JLabel jLabelRenamePattern;
+    private javax.swing.JLabel jLabelSizeFrom;
+    private javax.swing.JLabel jLabelSizeMb;
+    private javax.swing.JLabel jLabelSizeTo;
     private javax.swing.JList jListInput;
     private javax.swing.DefaultListModel<String> listModelInput;
     private javax.swing.JList jListTranscode;
     private javax.swing.DefaultListModel<String> listModelTranscode;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuBar jMenuBar;
-    private javax.swing.JMenu jMenuExport;
     private javax.swing.JMenu jMenuFile;
     private javax.swing.JMenu jMenuHelp;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItemAbout;
     private javax.swing.JMenuItem jMenuItemExit;
-    private javax.swing.JMenuItem jMenuItemHandbrake;
+    private javax.swing.JMenuItem jMenuItemExportFFmpeg;
+    private javax.swing.JMenuItem jMenuItemExportHandbrake;
     private javax.swing.JMenuItem jMenuItemHelp;
     private javax.swing.JMenuItem jMenuItemNew;
     private javax.swing.JMenuItem jMenuItemOpenFiles;
     private javax.swing.JMenuItem jMenuItemOpenProject;
     private javax.swing.JMenuItem jMenuItemSave;
     private javax.swing.JMenuItem jMenuItemSaveAs;
-    private javax.swing.JPanel jPanel10;
-    private javax.swing.JPanel jPanel11;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel jPanelCleanup;
-    private javax.swing.JPanel jPanelEncoding;
+    private javax.swing.JPanel jPanelDeleteFiles;
     protected javax.swing.JPanel jPanelFileView;
     private javax.swing.JPanel jPanelInput;
     private javax.swing.JPanel jPanelOutput;
+    private javax.swing.JPanel jPanelProperties;
+    private javax.swing.JPanel jPanelRenameFiles;
+    private javax.swing.JPanel jPanelSearch;
     private javax.swing.JPanel jPanelSearchPattern;
     private javax.swing.JProgressBar jProgressBarScan;
     private javax.swing.JRadioButton jRadioButtonDifferentFolder;
@@ -1649,9 +1563,8 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JRadioButton jRadioButtonSelectProperties;
     private javax.swing.JRadioButton jRadioButtonSelectRegex;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPaneFileList;
+    private javax.swing.JScrollPane jScrollPaneInput;
     private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JToolBar.Separator jSeparator2;
     private javax.swing.JPopupMenu.Separator jSeparator3;
@@ -1659,12 +1572,11 @@ private void jMenuItemNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JPopupMenu.Separator jSeparator5;
     private javax.swing.JPopupMenu.Separator jSeparator6;
     private javax.swing.JTabbedPane jTabbedPaneSettings;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextFieldDifferentFolder;
     private javax.swing.JTextField jTextFieldExtensions;
     private javax.swing.JTextField jTextFieldRegex;
     private javax.swing.JTextField jTextFieldRenamePattern;
-    private javax.swing.JTextPane jTextPaneHandbrakeQuery;
+    private javax.swing.JTextField jTextFieldSearch;
     private javax.swing.JToolBar jToolBar;
     private javax.swing.ButtonGroup outputTypeChooser;
     private javax.swing.ButtonGroup searchPatternChooser;

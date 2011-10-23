@@ -18,7 +18,10 @@ package vbp.gui;
 
 import java.awt.Image;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.ImageIcon;
+import sebi.util.threads.ThreadedExecutor;
 import vbp.model.Model;
 
 /**
@@ -33,6 +36,8 @@ public class GUI {
     
     protected WindowMain windowMain;
     protected WindowExportFFmpeg windowFFmpeg;
+    protected WindowExportHandbrake windowHandbrake;
+    protected List<Saveable> windows = new ArrayList<Saveable>();
     
     /**
      * Constructor of the GUI. Don't forget to call init() for the gui to become
@@ -95,12 +100,82 @@ public class GUI {
         });
     }
     
+    protected void popupWindowHandbrake() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                windowHandbrake = new WindowExportHandbrake(windowMain, model);
+                windowHandbrake.setVisible(true);
+            }
+        });
+    }
+    
     /**
      * @return the icon image for the application
      */
     protected Image getIcon() {
         URL imageURL = getClass().getResource("/vbp/assets/icons/video.png");
         return new ImageIcon(imageURL).getImage();
+    }
+    
+    // load and save
+    
+    protected void loadDefaults() {
+        model.loadDefaults();
+        updateAllGuiValues();
+    }
+    
+    protected void loadProject() {
+        model.loadProject(windowMain.jFileChooserProjectLoad);
+        updateAllGuiValues();
+    }
+    
+    protected void saveProject() {
+        new ThreadedExecutor() {
+            @Override
+            public void execute() {
+                updateAllModelValues();
+                model.saveProject(windowMain.jFileChooserProjectSave);
+            }
+        }.start();
+    }
+    
+    private void updateAllModelValues() {
+        refreshWindowList();
+        for (Saveable window : windows) {
+            if(window != null) {
+                window.updateModelValues();
+            }
+        }
+    }
+    
+    private void updateAllGuiValues() {
+        refreshWindowList();
+        for (Saveable window : windows) {
+            if (window != null) {
+                window.updateGuiValues();
+            }
+        }
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            
+//            @Override
+//            public void run() {
+//                
+//            }
+//        });
+    }
+    
+    /**
+     * this list needs to be refreshed before each action, because java does not
+     * follow changes in referenced objects, when they were "null" at the moment
+     * they were added to the list
+     */
+    private void refreshWindowList() {
+        windows.clear();
+        
+        windows.add(windowMain);
+        windows.add(windowFFmpeg);
+        windows.add(windowHandbrake);
     }
 
 }

@@ -13,15 +13,6 @@
         <Property name="multiSelectionEnabled" type="boolean" value="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JFileChooser" name="jFileChooserExportHandbrake">
-      <Properties>
-        <Property name="dialogTitle" type="java.lang.String" value="Save as Handbrake-Queue"/>
-        <Property name="dialogType" type="int" value="1"/>
-        <Property name="fileFilter" type="javax.swing.filechooser.FileFilter" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="FileFilters.handbrakeQueueFilter()" type="code"/>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JFileChooser" name="jFileChooserProjectLoad">
       <Properties>
         <Property name="dialogTitle" type="java.lang.String" value="Select a vbp-Project"/>
@@ -30,6 +21,9 @@
         </Property>
         <Property name="multiSelectionEnabled" type="boolean" value="true"/>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JFileChooser" name="jFileChooserProjectSave">
       <Properties>
@@ -39,6 +33,9 @@
           <Connection code="FileFilters.projectFilter()" type="code"/>
         </Property>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="4"/>
+      </AuxValues>
     </Component>
     <Container class="javax.swing.JFrame" name="jFrameAbout">
       <Properties>
@@ -101,12 +98,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButtonHomepage">
           <Properties>
-            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="Homepage"/>
-            <Property name="borderPainted" type="boolean" value="false"/>
-            <Property name="opaque" type="boolean" value="false"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonHomepageActionPerformed"/>
@@ -129,7 +121,7 @@
                 </Property>
                 <Property name="contentType" type="java.lang.String" value="text/html"/>
                 <Property name="editable" type="boolean" value="false"/>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Video Batch Processor, version 0.1.1 (2011-10-09)&lt;br /&gt;&#xa;developed by Sebastian Straub &amp;lt;&lt;a href=&quot;mailto:sebastian-straub@gmx.net&quot;&gt;sebastian-straub@gmx.net&lt;/a&gt;&amp;gt;&lt;/p&gt;&#xa;&lt;p&gt;... is a tool that allows you to batch process any video files on your storage devices according to your specific needs. Search for video files matching specific criteria (like name, extension, size) and batch-process them with the video converter of your choice. &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor#readme&quot;&gt;Read more...&lt;/a&gt;&lt;/p&gt;&#xa;&lt;p&gt;For updates, visit the &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor&quot;&gt;Project Homepage&lt;/a&gt;.&lt;br /&gt;&#xa;For further information, visit &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor/wiki&quot;&gt;the Wiki&lt;/a&gt;.&lt;br /&gt;&#xa;Found any bugs? Please report them to the &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor/issues&quot;&gt;Issue Tracker&lt;/a&gt;.&lt;/p&gt;&#xa;&lt;p&gt;Video Batch Processor is free software, licenced unter the &lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.html&quot;&gt;GPLv3&lt;/a&gt;. The source code is hosted on &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;&#xa;&lt;p&gt;Please note that this is still an early release. It may contain serious bugs, so use it at your own risk. The buttons to functions that are not yet activated are drawn with grey text, so don&apos;t mind if nothing happens when you click on them ;D&lt;/p&gt;&#xa;&lt;/html&gt;"/>
+                <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;&lt;p&gt;Video Batch Processor, version 0.1.1 (2011-10-09)&lt;br /&gt;&#xa;developed by Sebastian Straub &amp;lt;&lt;a href=&quot;mailto:sebastian-straub@gmx.net&quot;&gt;sebastian-straub@gmx.net&lt;/a&gt;&amp;gt;&lt;/p&gt;&#xa;&lt;p&gt;... is a tool that allows you to batch process any video files on your storage devices according to your specific needs. Search for video files matching specific criteria (like name, extension, size) and batch-process them with the video converter of your choice. &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor#readme&quot;&gt;Read more...&lt;/a&gt;&lt;/p&gt;&#xa;&lt;p&gt;For updates, visit the &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor&quot;&gt;Project Homepage&lt;/a&gt;.&lt;br /&gt;&#xa;For further information, visit &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor/wiki&quot;&gt;the Wiki&lt;/a&gt;.&lt;br /&gt;&#xa;Found any bugs? Please report them to the &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor/issues&quot;&gt;Issue Tracker&lt;/a&gt;.&lt;/p&gt;&#xa;&lt;p&gt;Video Batch Processor is free software, licenced unter the &lt;a href=&quot;https://www.gnu.org/licenses/gpl-3.0.html&quot;&gt;GPLv3&lt;/a&gt;. The source code is hosted on &lt;a href=&quot;https://github.com/Klamann/Video-Batch-Processor&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;&#xa;&lt;p&gt;Please note that this is still an early release. It may contain serious bugs, so use it at your own risk. The functionality behind some buttons is not yet implemented, these are grayed-out. Have a lookout for upcoming releases, if you need them :)&lt;/p&gt;&#xa;&lt;/html&gt;"/>
                 <Property name="toolTipText" type="java.lang.String" value=""/>
                 <Property name="autoscrolls" type="boolean" value="false"/>
                 <Property name="opaque" type="boolean" value="false"/>
@@ -207,10 +199,8 @@
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+S"/>
                 </Property>
-                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="99" green="99" red="99" type="rgb"/>
-                </Property>
                 <Property name="text" type="java.lang.String" value="Save"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItemSaveAs">
@@ -224,24 +214,6 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItemSaveAsActionPerformed"/>
               </Events>
             </MenuItem>
-            <Menu class="javax.swing.JMenu" name="jMenuExport">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Export"/>
-              </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="jMenuItemHandbrake">
-                  <Properties>
-                    <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
-                      <KeyStroke key="Ctrl+E"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="Handbrake-Queue"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItemHandbrakeActionPerformed"/>
-                  </Events>
-                </MenuItem>
-              </SubComponents>
-            </Menu>
             <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator5">
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="jMenuItemExit">
@@ -262,7 +234,7 @@
             <Property name="text" type="java.lang.String" value="Export"/>
           </Properties>
           <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem1">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItemExportFFmpeg">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Shift+Ctrl+F"/>
@@ -270,13 +242,16 @@
                 <Property name="text" type="java.lang.String" value="FFmpeg"/>
               </Properties>
             </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+            <MenuItem class="javax.swing.JMenuItem" name="jMenuItemExportHandbrake">
               <Properties>
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Shift+Ctrl+H"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Handbrake"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItemExportHandbrakeActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -476,12 +451,10 @@
         </Container>
         <Component class="javax.swing.JButton" name="jButtonUp">
           <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="99" green="99" red="99" type="rgb"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="&#x2191;"/>
-            <Property name="toolTipText" type="java.lang.String" value=""/>
+            <Property name="toolTipText" type="java.lang.String" value="move selection up"/>
             <Property name="actionCommand" type="java.lang.String" value="up"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[42, 23]"/>
             </Property>
@@ -495,11 +468,9 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButtonDel">
           <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="99" green="99" red="99" type="rgb"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="x"/>
-            <Property name="toolTipText" type="java.lang.String" value="delete selected file (mutiple selection possible)"/>
+            <Property name="toolTipText" type="java.lang.String" value="remove selected file from list (mutiple selection possible)"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[42, 23]"/>
             </Property>
@@ -516,11 +487,10 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButtonDown">
           <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="99" green="99" red="99" type="rgb"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="&#x2193;"/>
+            <Property name="toolTipText" type="java.lang.String" value="move selection down"/>
             <Property name="actionCommand" type="java.lang.String" value="down"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
               <Dimension value="[42, 23]"/>
             </Property>
@@ -560,10 +530,8 @@
         </Component>
         <Component class="javax.swing.JButton" name="jButtonSaveListAs">
           <Properties>
-            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="99" green="99" red="99" type="rgb"/>
-            </Property>
             <Property name="text" type="java.lang.String" value="Save List as..."/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="jButtonClearTranscode">
@@ -597,20 +565,6 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonLoadProjectActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="jButtonAddFiles">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Add"/>
-            <Property name="toolTipText" type="java.lang.String" value="Add (multiple) files or folders"/>
-            <Property name="focusable" type="boolean" value="false"/>
-            <Property name="horizontalTextPosition" type="int" value="0"/>
-            <Property name="verticalTextPosition" type="int" value="3"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonAddFilesActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JToolBar$Separator" name="jSeparator1">
-        </Component>
         <Component class="javax.swing.JButton" name="jButtonSaveProject">
           <Properties>
             <Property name="text" type="java.lang.String" value="Save"/>
@@ -623,16 +577,41 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSaveProjectActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="jButtonExport">
+        <Component class="javax.swing.JButton" name="jButtonAddFiles">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Export"/>
+            <Property name="text" type="java.lang.String" value="Add Files"/>
+            <Property name="toolTipText" type="java.lang.String" value="Add (multiple) files or folders"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="verticalTextPosition" type="int" value="3"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonAddFilesActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JToolBar$Separator" name="jSeparator1">
+        </Component>
+        <Component class="javax.swing.JButton" name="jButtonExportHandbrake">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Handbrake"/>
             <Property name="toolTipText" type="java.lang.String" value="Export the current project to a Handbrake-Queue"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonExportActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonExportHandbrakeActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="jButtonExportFFmpeg">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="FFmpeg"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="horizontalTextPosition" type="int" value="0"/>
+            <Property name="verticalTextPosition" type="int" value="3"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonExportFFmpegActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator2">
@@ -669,7 +648,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel6" max="32767" attributes="0"/>
+                      <Component id="jPanelSearch" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -678,14 +657,14 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
+                      <Component id="jPanelSearch" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="1"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="jPanel6">
+            <Container class="javax.swing.JPanel" name="jPanelSearch">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -709,7 +688,7 @@
                                   <EmptySpace min="-2" pref="48" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" alignment="1" attributes="0">
-                                  <Component id="jScrollPane2" pref="440" max="32767" attributes="0"/>
+                                  <Component id="jScrollPaneInput" pref="440" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="1" attributes="0">
                                       <Component id="jButtonInputUp" linkSize="3" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -734,7 +713,7 @@
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jButtonInputDown" linkSize="4" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="jScrollPane2" min="-2" pref="140" max="-2" attributes="1"/>
+                              <Component id="jScrollPaneInput" min="-2" pref="140" max="-2" attributes="1"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
@@ -750,7 +729,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+                <Container class="javax.swing.JScrollPane" name="jScrollPaneInput">
                   <AuxValues>
                     <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
                   </AuxValues>
@@ -771,11 +750,10 @@
                 </Container>
                 <Component class="javax.swing.JButton" name="jButtonInputUp">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="&#x2191;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="move selection up"/>
                     <Property name="actionCommand" type="java.lang.String" value="up"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[42, 23]"/>
                     </Property>
@@ -790,7 +768,7 @@
                 <Component class="javax.swing.JButton" name="jButtonInputDel">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="x"/>
-                    <Property name="toolTipText" type="java.lang.String" value="delete selected file (mutiple selection possible)"/>
+                    <Property name="toolTipText" type="java.lang.String" value="remove selected file from list (mutiple selection possible)"/>
                     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[42, 23]"/>
                     </Property>
@@ -807,11 +785,10 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonInputDown">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="&#x2193;"/>
+                    <Property name="toolTipText" type="java.lang.String" value="move selection down"/>
                     <Property name="actionCommand" type="java.lang.String" value="down"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[42, 23]"/>
                     </Property>
@@ -878,7 +855,7 @@
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabelRenamePattern" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jTextFieldRenamePattern" pref="242" max="32767" attributes="0"/>
                                   </Group>
@@ -902,7 +879,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jRadioButtonSamePlace" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jTextFieldRenamePattern" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelRenamePattern" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jButtonRenamePatternHelp" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -928,7 +905,7 @@
                 <Property name="text" type="java.lang.String" value="Same Place"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel1">
+            <Component class="javax.swing.JLabel" name="jLabelRenamePattern">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Rename Pattern:"/>
               </Properties>
@@ -985,7 +962,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jTextFieldRegex" alignment="0" pref="520" max="32767" attributes="0"/>
                           <Component id="jRadioButtonSelectRegex" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jPanel7" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanelProperties" alignment="0" max="32767" attributes="0"/>
                           <Component id="jRadioButtonSelectProperties" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -998,12 +975,12 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jRadioButtonSelectProperties" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel7" min="-2" max="-2" attributes="0"/>
+                      <Component id="jPanelProperties" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jRadioButtonSelectRegex" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jTextFieldRegex" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="43" max="32767" attributes="0"/>
+                      <EmptySpace pref="45" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1026,7 +1003,7 @@
                 <Property name="text" type="java.lang.String" value="Custom Regex"/>
               </Properties>
             </Component>
-            <Container class="javax.swing.JPanel" name="jPanel7">
+            <Container class="javax.swing.JPanel" name="jPanelProperties">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -1043,27 +1020,27 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="jCheckBoxExtension" alignment="0" min="-2" max="-2" attributes="0"/>
                               <Component id="jCheckBoxSize" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="jCheckBox1" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="jCheckBoxName" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="jComboBox1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jComboBoxNameSearchType" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="jTextField1" pref="273" max="32767" attributes="0"/>
+                                  <Component id="jTextFieldSearch" pref="273" max="32767" attributes="0"/>
                                   <EmptySpace type="separate" max="-2" attributes="0"/>
-                                  <Component id="jButtonExtensionHelp1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonSearchHelp" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Group type="102" attributes="0">
-                                  <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabelSizeFrom" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jFormattedTextFieldSizeMin" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabelSizeTo" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jFormattedTextFieldSizeMax" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabelSizeMb" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace pref="177" max="32767" attributes="0"/>
                                   <Component id="jButtonSizeHelp" min="-2" max="-2" attributes="0"/>
                               </Group>
@@ -1083,12 +1060,12 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jCheckBoxSize" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabelSizeFrom" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jButtonSizeHelp" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jFormattedTextFieldSizeMin" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabelSizeTo" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jFormattedTextFieldSizeMax" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jLabelSizeMb" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
@@ -1099,11 +1076,11 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="jComboBox1" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jTextField1" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jButtonExtensionHelp1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jComboBoxNameSearchType" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jTextFieldSearch" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonSearchHelp" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <Component id="jCheckBox1" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="jCheckBoxName" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="32767" attributes="0"/>
                       </Group>
@@ -1111,17 +1088,17 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel2">
+                <Component class="javax.swing.JLabel" name="jLabelSizeFrom">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="from"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel3">
+                <Component class="javax.swing.JLabel" name="jLabelSizeTo">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="MB to"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel4">
+                <Component class="javax.swing.JLabel" name="jLabelSizeMb">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="MB"/>
                   </Properties>
@@ -1145,18 +1122,14 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonSizeHelp">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="?"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonExtensionHelp">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="?"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JFormattedTextField" name="jFormattedTextFieldSizeMin">
@@ -1179,13 +1152,13 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JCheckBox" name="jCheckBox1">
+                <Component class="javax.swing.JCheckBox" name="jCheckBoxName">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Name:"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JComboBox" name="jComboBox1">
+                <Component class="javax.swing.JComboBox" name="jComboBoxNameSearchType">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                       <StringArray count="3">
@@ -1196,14 +1169,12 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JTextField" name="jTextField1">
+                <Component class="javax.swing.JTextField" name="jTextFieldSearch">
                 </Component>
-                <Component class="javax.swing.JButton" name="jButtonExtensionHelp1">
+                <Component class="javax.swing.JButton" name="jButtonSearchHelp">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="?"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
               </SubComponents>
@@ -1214,119 +1185,8 @@
                   <Font name="Courier New" size="12" style="0"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value=".*(\.(avi|mkv|mp4))"/>
-                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[139, 22]"/>
-                </Property>
               </Properties>
             </Component>
-          </SubComponents>
-        </Container>
-        <Container class="javax.swing.JPanel" name="jPanelEncoding">
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Encoding">
-                <Property name="tabTitle" type="java.lang.String" value="Encoding"/>
-              </JTabbedPaneConstraints>
-            </Constraint>
-          </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel11" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel11" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="98" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
-          <SubComponents>
-            <Container class="javax.swing.JPanel" name="jPanel11">
-              <Properties>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Enter Handbrake-Query"/>
-                  </Border>
-                </Property>
-              </Properties>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel7" alignment="0" pref="488" max="32767" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Component id="jScrollPane3" pref="441" max="32767" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="jButtonEncodingHelp" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jButtonEncodingHelp" min="-2" max="-2" attributes="0"/>
-                              <Component id="jScrollPane3" pref="59" max="32767" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel7">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;Enter your preferred transcoding-settings in Handbrake, generate a query for these and paste them in the textarea below. All files will be encoded with these settings&lt;/html&gt;"/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JButton" name="jButtonEncodingHelp">
-                  <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value="?"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonEncodingHelpActionPerformed"/>
-                  </Events>
-                </Component>
-                <Container class="javax.swing.JScrollPane" name="jScrollPane3">
-                  <AuxValues>
-                    <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                  </AuxValues>
-
-                  <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-                  <SubComponents>
-                    <Component class="javax.swing.JTextPane" name="jTextPaneHandbrakeQuery">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Tahoma" size="10" style="0"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value=" -o &quot;&quot;  -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1"/>
-                      </Properties>
-                    </Component>
-                  </SubComponents>
-                </Container>
-              </SubComponents>
-            </Container>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="jPanelCleanup">
@@ -1344,8 +1204,8 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jPanel10" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jPanel9" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanelRenameFiles" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jPanelDeleteFiles" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -1355,16 +1215,16 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel9" min="-2" max="-2" attributes="0"/>
+                      <Component id="jPanelDeleteFiles" min="-2" pref="77" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jPanel10" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="37" max="32767" attributes="0"/>
+                      <Component id="jPanelRenameFiles" min="-2" pref="77" max="-2" attributes="0"/>
+                      <EmptySpace pref="65" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="jPanel9">
+            <Container class="javax.swing.JPanel" name="jPanelDeleteFiles">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -1379,7 +1239,7 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel5" pref="488" max="32767" attributes="0"/>
+                              <Component id="jLabelDeleteFiles" pref="488" max="32767" attributes="0"/>
                               <Component id="jButtonDeleteAll" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -1389,7 +1249,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelDeleteFiles" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonDeleteAll" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
@@ -1398,7 +1258,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel5">
+                <Component class="javax.swing.JLabel" name="jLabelDeleteFiles">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="&lt;html&gt;Delete all files currently in the list. This can be useful if you already have transcoded all files and want to get rid of oversized originals.&lt;/html&gt;"/>
                     <Property name="autoscrolls" type="boolean" value="true"/>
@@ -1406,10 +1266,8 @@
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonDeleteAll">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="Delete all original files"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeleteAllActionPerformed"/>
@@ -1417,7 +1275,7 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JPanel" name="jPanel10">
+            <Container class="javax.swing.JPanel" name="jPanelRenameFiles">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -1432,7 +1290,7 @@
                       <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jLabel6" pref="488" max="32767" attributes="0"/>
+                              <Component id="jLabelRenameFiles" pref="488" max="32767" attributes="0"/>
                               <Component id="jButtonRenameAll" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -1442,7 +1300,7 @@
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabelRenameFiles" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonRenameAll" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
@@ -1451,17 +1309,15 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel6">
+                <Component class="javax.swing.JLabel" name="jLabelRenameFiles">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="&lt;html&gt;Rename all transcoded files back to the original file names, after the original files have been deleted (see above)&lt;/html&gt;"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonRenameAll">
                   <Properties>
-                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="99" green="99" red="99" type="rgb"/>
-                    </Property>
                     <Property name="text" type="java.lang.String" value="Rename all transcoded files"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonRenameAllActionPerformed"/>
