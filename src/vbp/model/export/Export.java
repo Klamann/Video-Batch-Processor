@@ -44,7 +44,7 @@ public abstract class Export {
     /** all files to transcode */
     protected List<File> files;
     /* the extension of the resulting script file */
-    protected String fileExtension;
+    protected String scriptFileExtension;
     /** the command line containing the software-specific transcoding settings */
     protected String commandLine;
     /** path to the software used to execute the commands */
@@ -68,13 +68,13 @@ public abstract class Export {
      * All files in the transcoding list will be added to the script.
      * The resulting files will be renamed according to your specified rename pattern.
      * @param files all files to transcode
-     * @param fileExtension the extension of the resulting script file
+     * @param scriptFileExtension the extension of the resulting script file
      * @param commandLine the command line containing the software-specific transcoding settings
      * @param renamePattern rename pattern, used when files are stored in the same folder
      */
-    public Export(List<File> files, String fileExtension, String commandLine, String renamePattern) {
+    public Export(List<File> files, String scriptFileExtension, String commandLine, String renamePattern) {
         this.files = files;
-        this.fileExtension = fileExtension;
+        this.scriptFileExtension = scriptFileExtension;
         this.commandLine = commandLine;
         
         this.outputMethod = OutputMethod.INPLACE;
@@ -86,14 +86,14 @@ public abstract class Export {
      * All files in the transcoding list will be added to the script.
      * The resulting files will be renamed according to your specified rename pattern.
      * @param files all files to transcode
-     * @param fileExtension the extension of the resulting script file
+     * @param scriptFileExtension the extension of the resulting script file
      * @param commandLine the command line containing the software-specific transcoding settings
      * @param executerPath path to the software used to execute the commands
      * @param renamePattern rename pattern, used when files are stored in the same folder
      */
-    public Export(List<File> files, String fileExtension, String commandLine, String executerPath, String renamePattern) {
+    public Export(List<File> files, String scriptFileExtension, String commandLine, String executerPath, String renamePattern) {
         this.files = files;
-        this.fileExtension = fileExtension;
+        this.scriptFileExtension = scriptFileExtension;
         this.commandLine = commandLine;
         this.executerPath = executerPath;
         
@@ -107,14 +107,14 @@ public abstract class Export {
      * The resulting files will placed in the specified output folder, optionally
      * preserving the folder structure.
      * @param files all files to transcode
-     * @param fileExtension the extension of the resulting script file
+     * @param scriptFileExtension the extension of the resulting script file
      * @param commandLine the command line containing the software-specific transcoding settings
      * @param outputFolder folder where all transcoded files shall be saved
      * @param preserveFolders false: put all files directly in the output folder, true: write the file path to the source file into the output folder
      */
-    public Export(List<File> files, String fileExtension, String commandLine, File outputFolder, boolean preserveFolders) {
+    public Export(List<File> files, String scriptFileExtension, String commandLine, File outputFolder, boolean preserveFolders) {
         this.files = files;
-        this.fileExtension = fileExtension;
+        this.scriptFileExtension = scriptFileExtension;
         this.commandLine = commandLine;
         
         this.outputMethod = OutputMethod.SPECIFIC_FOLDER;
@@ -128,15 +128,15 @@ public abstract class Export {
      * The resulting files will placed in the specified output folder, optionally
      * preserving the folder structure.
      * @param files all files to transcode
-     * @param fileExtension the extension of the resulting script file
+     * @param scriptFileExtension the extension of the resulting script file
      * @param commandLine the command line containing the software-specific transcoding settings
      * @param executerPath path to the software used to execute the commands
      * @param outputFolder folder where all transcoded files shall be saved
      * @param preserveFolders false: put all files directly in the output folder, true: write the file path to the source file into the output folder
      */
-    public Export(List<File> files, String fileExtension, String commandLine, String executerPath, File outputFolder, boolean preserveFolders) {
+    public Export(List<File> files, String scriptFileExtension, String commandLine, String executerPath, File outputFolder, boolean preserveFolders) {
         this.files = files;
-        this.fileExtension = fileExtension;
+        this.scriptFileExtension = scriptFileExtension;
         this.commandLine = commandLine;
         this.executerPath = executerPath;
         
@@ -179,7 +179,7 @@ public abstract class Export {
                 try {
                     File output = fileChooser.getSelectedFile();
                     if(enforceExtension) {
-                        output = FileFilters.enforceFileExtension(output, fileExtension);
+                        output = FileFilters.enforceFileExtension(output, scriptFileExtension);
                     }
                     fileWriter = new FileWriter(output);
                     fileWriter.write(queue.get());
@@ -333,6 +333,5 @@ public abstract class Export {
         // file has no extension -> return unchanged
         return fileName;
     }
-    
     
 }

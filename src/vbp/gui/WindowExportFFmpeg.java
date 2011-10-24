@@ -111,7 +111,7 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
         jLabelFFmpegCommand.setText("FFmpeg Command Line:");
 
         jTextPaneFFmpeg.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
-        jTextPaneFFmpeg.setToolTipText("<html>\n<p>Add your FFmpeg Command line without input or output specification. All selected files will be transcoded with these settings.</p>\n<p>e.g.: <code>-ab 56 -ar 44100 -b 200 -r 15 -s 320x240 -f flv</code> will convert all video files to FLV.\n</html>");
+        jTextPaneFFmpeg.setToolTipText("<html>\n<p>Enter or paste your FFmpeg Command line here. All selected files will be transcoded with these settings.</p>\n<p>You do not have to remove the input or output file from the line, this is done automatically for you<br>(in fact, the output file extension is needed to guess the correct encoder, if the -f flag is not set)</p>\n<p>e.g.: <code>ffmpeg -i input.avi -ab 56 -ar 44100 -b 200 -r 15 -s 320x240 -f flv output.flv</code> will convert all video files to FLV.<br>The file \"input.avi\" will not be transcoded, as it is replaced by the files in the transcoding list.</p>\n</html>");
         jScrollPanelFFmpeg.setViewportView(jTextPaneFFmpeg);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

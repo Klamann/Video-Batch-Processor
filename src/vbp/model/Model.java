@@ -30,6 +30,7 @@ import sebi.util.observer.EventArgs;
 import vbp.gui.FileFilters;
 import vbp.model.export.Export;
 import vbp.model.export.ExportHandbrake;
+import vbp.util.arg.CommandLine;
 
 /**
  * The Model class holds the main program logic. All user settings are stored
@@ -315,7 +316,7 @@ public class Model {
      */
     public void setHandBrakeQuery(String handBrakeQuery) {
         // remove -i and -o parameters
-        this.handBrakeQuery = removeArgFromString(handBrakeQuery, "-i", "-o");
+        this.handBrakeQuery = CommandLine.removeArgFromString(handBrakeQuery, "-i", "-o");
     }
 
     /**
@@ -525,60 +526,6 @@ public class Model {
             }
         }
         return list;
-    }
-    
-    /**
-     * <p>This is a very specialized function to remove certain parts from a command
-     * line. For any substring that shall be removed from the command line (e.g. -i)
-     * this function also removes the statement after this argument included in
-     * quotation marks (e.g. "/home/folder/file.txt").</p>
-     * 
-     * <p>So, calling <code>removeArgFromString(input, "-i");</code> for the input string
-     * <code>-f -i "/home/folder/file.txt" -g 100 ...</code> returns <code>-f  -g 100 ...</code>
-     * (note that the double whitespace after -f remains preserved)</p>
-     * 
-     * <p>This function can cause unexpected behaviour when called on Strings that
-     * don't follow the schema: <code>arg "content to this arg"</code>.</p>
-     * 
-     * @param input file string to remove command line args from
-     * @param args command line arguments to remove from the string
-     * @return same string without the args and subsequent expressions in quotation marks.
-     */
-    public static String removeArgFromString(String input, String... args) {
-        
-        for (String arg : args) {
-            if (input.contains(arg)) {
-                int argBegin = input.indexOf(arg);          // find argument
-                int argEnd = nthIndexOf(input, '\"', argBegin, 2) + 1;
-
-                StringBuilder removed = new StringBuilder(input.length());
-                removed.append(input.substring(0, argBegin));
-                removed.append(input.substring(argEnd));
-
-                input = removed.toString();
-            }
-        }
-        
-        return input;
-    }
-    
-    /**
-     * Returns the nth appearance of a specified char inside a String. Good if you want
-     * to find the position of matching characters like quotation marks or brackets.
-     * @param input String to search in
-     * @param match Character to find
-     * @param fromIndex Index position to start the search
-     * @param nth which occurance to return
-     * @return index of the nth appearance of the specified char
-     */
-    public static int nthIndexOf(String input, char match, int fromIndex, int nth) {
-        
-        int tmpIndex = fromIndex;
-        for (int i = 0; i < nth; i++) {
-            tmpIndex = input.indexOf(match, tmpIndex+1);
-        }
-        
-        return tmpIndex;
     }
     
     // </editor-fold>

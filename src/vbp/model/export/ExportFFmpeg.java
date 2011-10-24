@@ -33,8 +33,6 @@ public class ExportFFmpeg extends Export {
     public ExportFFmpeg(List<File> files, String commandLine, String executerPath, File outputFolder, boolean preserveFolders) {
         super(files, commandLine, executerPath, outputFolder, preserveFolders);
     }
-
-    
     
     @Override
     protected String buildScriptImplementation(Map<File, String> outputMapping) {
@@ -48,6 +46,25 @@ public class ExportFFmpeg extends Export {
 
     @Override
     protected String extractFileExtension() {
+        
+        /*
+         * ffmpeg gets the file format from two possible sources:
+         * 1. guessed file format by the output file extension (output is always the last entry)
+         * 2. forced file format determined by the -f trigger (this overrides 1.)
+         * 
+         * To get the correct file extension, this method needs the unfiltered
+         * ffmpeg command line. The extension will be determined only once. Afterwards
+         * the command line will be cut, so it can be formatted later as
+         * "ffmpeg "+INPUT+COMMANDLINE+OUTPUT
+         */
+        
+        if(destinationFileExtension == null || destinationFileExtension.equals("")) {
+            // TODO use CommandLine utility class to get the right file extension and to clean the command Line
+        } else {
+            return destinationFileExtension;
+        }
+        
+        
         throw new UnsupportedOperationException("Not supported yet.");
     }
     
