@@ -17,9 +17,6 @@
 package vbp.model.export;
 
 import java.io.File;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import sebi.util.system.Platform;
@@ -29,7 +26,8 @@ import static org.junit.Assert.*;
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
-public class HandbrakeExportTest {
+@Deprecated
+public class HandbrakeExportStaticTest {
     
     @BeforeClass
     public static void setUpClass() {
@@ -50,23 +48,23 @@ public class HandbrakeExportTest {
     @Test
     public void testComposeOutput() {
         if(!Platform.isWindows()) {
-            String result = HandbrakeExport.composeOutput("/home/movies/test", "video", query);
+            String result = HandbrakeExportStatic.composeOutput("/home/movies/test", "video", query);
             assertEquals("/home/movies/test/video.mkv", result);
         } else {
-            String result = HandbrakeExport.composeOutput("C:/movies/test", "video", query);
+            String result = HandbrakeExportStatic.composeOutput("C:/movies/test", "video", query);
             assertEquals("C:\\movies\\test\\video.mkv", result);
         }
     }
     
     @Test
     public void testExtractFileExtension() {
-        String ext = HandbrakeExport.extractFileExtension(query);
+        String ext = HandbrakeExportStatic.extractFileExtension(query);
         assertEquals("mkv", ext);
     }
     
     @Test
     public void testGenerateOutputFileUseRename() {
-        String result = HandbrakeExport.applyRenamePattern(input, "{name}-change", query);
+        String result = HandbrakeExportStatic.applyRenamePattern(input, "{name}-change", query);
         
         if(!Platform.isWindows()) {
             assertEquals("/home/movies/video-change.mkv", result);
@@ -78,14 +76,14 @@ public class HandbrakeExportTest {
     
     @Test
     public void testGenerateOutputFileUseFolder() {
-        String flatten = HandbrakeExport.generateOutputFile(input, output, false, query);
+        String flatten = HandbrakeExportStatic.generateOutputFile(input, output, false, query);
         if(!Platform.isWindows()) {
             assertEquals("/home/movies/output/video.mkv", flatten);
         } else {
             assertEquals("C:\\movies\\output\\video.mkv", flatten);
         }
         
-        String preserve = HandbrakeExport.generateOutputFile(input, output, true, query);
+        String preserve = HandbrakeExportStatic.generateOutputFile(input, output, true, query);
         if(!Platform.isWindows()) {
             assertEquals("/home/movies/output/home/movies/video.mkv", preserve);
         } else {
@@ -96,7 +94,7 @@ public class HandbrakeExportTest {
     
     @Test
     public void testRemoveExtension() {
-        String pureName = HandbrakeExport.removeExtension("this.is.the.filename.avi");
+        String pureName = HandbrakeExportStatic.removeExtension("this.is.the.filename.avi");
         assertEquals("this.is.the.filename", pureName);
     }
     

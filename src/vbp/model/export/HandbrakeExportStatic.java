@@ -43,7 +43,8 @@ import vbp.gui.FileFilters;
  * 
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
-public class HandbrakeExport {
+@Deprecated
+public class HandbrakeExportStatic {
     
     /**
      * This function acts as a wrapper for buildQueue(). It generates the .queue-
@@ -62,7 +63,7 @@ public class HandbrakeExport {
         Future<String> queue = new FutureBuilder<String>() {
             @Override
             public String build() {
-                return HandbrakeExport.buildQueue(files, query, renamePattern);
+                return buildQueue(files, query, renamePattern);
             }
         }.getFuture();
         saveQueueWorker(fileChooser, queue);
@@ -74,7 +75,7 @@ public class HandbrakeExport {
         Future<String> queue = new FutureBuilder<String>() {
             @Override
             public String build() {
-                return HandbrakeExport.buildQueue(files, query, outputFolder, preserveFolders);
+                return buildQueue(files, query, outputFolder, preserveFolders);
             }
         }.getFuture();
         saveQueueWorker(fileChooser, queue);
@@ -90,21 +91,21 @@ public class HandbrakeExport {
                     fileWriter = new FileWriter(FileFilters.enforceFileExtension(fileChooser.getSelectedFile(), "queue"));
                     fileWriter.write(queue.get());
                 } catch (IOException ex) {
-                    Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(HandbrakeExportStatic.class.getName()).log(Level.SEVERE, null, ex);
                 } finally {
                     if (fileWriter != null) {
                         try {
                             fileWriter.close();
                         } catch (IOException ex) {
-                            Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(HandbrakeExportStatic.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
 
             } catch (InterruptedException ex) {
-                Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(HandbrakeExportStatic.class.getName()).log(Level.SEVERE, null, ex);
             } catch (ExecutionException ex) {
-                Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(HandbrakeExportStatic.class.getName()).log(Level.SEVERE, null, ex);
             }
         } else {
             queue.cancel(true);
@@ -200,7 +201,7 @@ public class HandbrakeExport {
                 counter++;
                 
             } catch (IOException ex) {
-                Logger.getLogger(HandbrakeExport.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(HandbrakeExportStatic.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }

@@ -38,6 +38,7 @@ import net.java.balloontip.positioners.LeftAbovePositioner;
 import net.java.balloontip.styles.BalloonTipStyle;
 import net.java.balloontip.styles.EdgedBalloonStyle;
 import net.java.balloontip.utils.ToolTipUtils;
+import sebi.util.observer.Event;
 import sebi.util.observer.ObserverArgs;
 import sebi.util.threads.ThreadedExecutor;
 
@@ -150,7 +151,7 @@ public class WindowMain extends javax.swing.JFrame implements Saveable {
     
     @Override
     public void safeExit() {
-        updateModelValues();
+        updateModelValues.fire();
         model.safeExit();
     }
 
@@ -186,7 +187,7 @@ public class WindowMain extends javax.swing.JFrame implements Saveable {
 
                 @Override
                 public void execute() {
-                    updateModelValues();
+                    updateModelValues.fire();
                     model.addInputFiles(jFileChooserInput.getSelectedFiles());
                 }
             }.start();
@@ -224,7 +225,7 @@ public class WindowMain extends javax.swing.JFrame implements Saveable {
 
             @Override
             public void execute() {
-                updateModelValues();
+                updateModelValues.fire();
                 model.updateFilesToTranscode();
             }
         }.start();
@@ -263,7 +264,17 @@ public class WindowMain extends javax.swing.JFrame implements Saveable {
     }
     
     // </editor-fold>
-    // <editor-fold desc="Model-Events">
+    // <editor-fold desc="Events">
+    
+    // GUI
+    
+    protected Event updateModelValues = new Event();
+    
+    public Event eventUpdateModelValues() {
+        return updateModelValues;
+    }
+    
+    // Model
     
     private void initEvents() {
         model.eventUpdateGUI().addObserver(onUpdateGUI());

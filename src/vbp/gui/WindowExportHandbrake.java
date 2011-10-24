@@ -22,6 +22,7 @@
  */
 package vbp.gui;
 
+import sebi.util.observer.Event;
 import sebi.util.threads.ThreadedExecutor;
 import vbp.model.Model;
 
@@ -70,7 +71,7 @@ public class WindowExportHandbrake extends javax.swing.JDialog implements Saveab
 
             @Override
             public void execute() {
-                updateModelValues();
+                updateModelValues.fire();
                 model.exportToHandbrake(jFileChooserExportHandbrake);
             }
         }.start();
@@ -80,6 +81,15 @@ public class WindowExportHandbrake extends javax.swing.JDialog implements Saveab
     public void safeExit() {
         updateModelValues();
         this.dispose();
+    }
+    
+    // </editor-fold>
+    // <editor-fold desc="Events">
+    
+    protected Event updateModelValues = new Event();
+    
+    public Event eventUpdateModelValues() {
+        return updateModelValues;
     }
     
     // </editor-fold>

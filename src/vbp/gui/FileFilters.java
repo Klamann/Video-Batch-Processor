@@ -34,6 +34,14 @@ public class FileFilters {
         return new FileNameExtensionFilter("Video Batch Processor Project (*.vbpp)", "vbpp");
     }
     
+    /**
+     * Makes sure that the input file has the desired file extension. If the
+     * file already has the extension, it is returned unchanged. Else, the extension
+     * is added to the filename and the new file object is returned.
+     * @param file the input file
+     * @param ext the desired file extension (without '.')
+     * @return the input file with extension
+     */
     public static File enforceFileExtension(File file, String ext) {
         String name = file.getName();
         

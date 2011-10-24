@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
+import sebi.util.observer.Observer;
 import sebi.util.threads.ThreadedExecutor;
 import vbp.model.Model;
 
@@ -85,6 +86,7 @@ public class GUI {
 
             public void run() {
                 windowMain = new WindowMain(model, gui);
+                registerListeners(windowMain);
                 windowMain.setVisible(true);
             }
         });
@@ -94,7 +96,8 @@ public class GUI {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             public void run() {
-                windowFFmpeg = new WindowExportFFmpeg(windowMain);
+                windowFFmpeg = new WindowExportFFmpeg(windowMain, model);
+                registerListeners(windowFFmpeg);
                 windowFFmpeg.setVisible(true);
             }
         });
@@ -105,6 +108,7 @@ public class GUI {
 
             public void run() {
                 windowHandbrake = new WindowExportHandbrake(windowMain, model);
+                registerListeners(windowHandbrake);
                 windowHandbrake.setVisible(true);
             }
         });
@@ -176,6 +180,16 @@ public class GUI {
         windows.add(windowMain);
         windows.add(windowFFmpeg);
         windows.add(windowHandbrake);
+    }
+    
+    private void registerListeners(Saveable window) {
+        window.eventUpdateModelValues().addObserver(new Observer() {
+
+            @Override
+            public void update() {
+                updateAllModelValues();
+            }
+        });
     }
 
 }

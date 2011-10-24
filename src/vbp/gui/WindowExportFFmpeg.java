@@ -22,6 +22,9 @@
  */
 package vbp.gui;
 
+import sebi.util.observer.Event;
+import vbp.model.Model;
+
 /**
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
@@ -29,7 +32,7 @@ package vbp.gui;
 public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable {
 
     /** Creates new form WindowExportFFmpeg */
-    public WindowExportFFmpeg(java.awt.Frame parent) {
+    public WindowExportFFmpeg(java.awt.Frame parent, Model model) {
         super(parent, "Export to FFmpeg", true);
         initComponents();
     }
@@ -45,6 +48,14 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
     public void safeExit() {
         updateModelValues();
         this.dispose();
+    }
+    
+    // Events
+    
+    protected Event updateModelValues = new Event();
+    
+    public Event eventUpdateModelValues() {
+        return updateModelValues;
     }
 
     /** This method is called from within the constructor to
@@ -100,6 +111,7 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
         jLabelFFmpegCommand.setText("FFmpeg Command Line:");
 
         jTextPaneFFmpeg.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jTextPaneFFmpeg.setToolTipText("<html>\n<p>Add your FFmpeg Command line without input or output specification. All selected files will be transcoded with these settings.</p>\n<p>e.g.: <code>-ab 56 -ar 44100 -b 200 -r 15 -s 320x240 -f flv</code> will convert all video files to FLV.\n</html>");
         jScrollPanelFFmpeg.setViewportView(jTextPaneFFmpeg);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

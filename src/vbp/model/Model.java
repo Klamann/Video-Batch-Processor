@@ -16,7 +16,7 @@
  */
 package vbp.model;
 
-import vbp.model.export.HandbrakeExport;
+import vbp.model.export.HandbrakeExportStatic;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,6 +28,8 @@ import sebi.util.data.Clipboard;
 import sebi.util.data.ListUtils;
 import sebi.util.observer.EventArgs;
 import vbp.gui.FileFilters;
+import vbp.model.export.Export;
+import vbp.model.export.ExportHandbrake;
 
 /**
  * The Model class holds the main program logic. All user settings are stored
@@ -213,12 +215,18 @@ public class Model {
     public void exportToHandbrake(JFileChooser fileChooser) {
         // TODO throw fail events to gui (separate) when items are malformed
         
+        Export handbrake;
         switch(outputMethod) {
             case INPLACE:
-                HandbrakeExport.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, renamePattern);
+//                HandbrakeExportStatic.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, renamePattern);
+                handbrake = new ExportHandbrake(filesToTranscode, handBrakeQuery, renamePattern);
+                handbrake.saveScript(fileChooser);
                 break;
             case SPECIFIC_FOLDER:
-                HandbrakeExport.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, outputLocation, preserveFolders);
+//                HandbrakeExportStatic.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, outputLocation, preserveFolders);
+                handbrake = new ExportHandbrake(filesToTranscode, handBrakeQuery, outputLocation, preserveFolders);
+                handbrake.saveScript(fileChooser);
+                break;
         }
     }
     
@@ -232,7 +240,7 @@ public class Model {
         
         Settings.writeSettings(this);
         
-        // TODO show save dialogue as soon as saving is possible...
+        // TODO show save dialogue before exiting, if changes happened
         
         System.exit(javax.swing.WindowConstants.EXIT_ON_CLOSE);
     }
@@ -466,12 +474,12 @@ public class Model {
     
     // <editor-fold defaultstate="collapsed" desc="enum-block">
     
-    protected enum OutputMethod {
+    public enum OutputMethod {
         INPLACE,
         SPECIFIC_FOLDER;
     }
 
-    protected enum SearchPattern {
+    public enum SearchPattern {
         FILE_PROPERTIES,
         REGEX;
     }

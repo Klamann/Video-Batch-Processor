@@ -16,6 +16,8 @@
  */
 package vbp.gui;
 
+import sebi.util.observer.Event;
+
 /**
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
@@ -38,4 +40,11 @@ public interface Saveable {
      */
     void safeExit();
     
+    /**
+     * This Event will be fired, when changes to the gui require the model to be
+     * updated.
+     * @return the event, shall be assigned to a listener
+     */
+    Event eventUpdateModelValues();
+
 }

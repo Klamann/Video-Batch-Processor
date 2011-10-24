@@ -187,7 +187,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jButtonHandbrakeQueryHelp" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="jScrollPanelHandbrakeQuery" alignment="0" pref="60" max="32767" attributes="0"/>
+                      <Component id="jScrollPanelHandbrakeQuery" alignment="0" pref="46" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
