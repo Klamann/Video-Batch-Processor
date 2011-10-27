@@ -123,8 +123,10 @@
     <Component class="javax.swing.JButton" name="jButtonSaveScript">
       <Properties>
         <Property name="text" type="java.lang.String" value="Save Script..."/>
-        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonSaveScriptActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="jButtonExecuteNow">
       <Properties>

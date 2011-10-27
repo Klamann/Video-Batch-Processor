@@ -17,32 +17,64 @@
 package vbp.model.export;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import vbp.util.arg.CommandLine;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import vbp.util.arg.CLParser;
 
 /**
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class ExportFFmpeg extends Export {
+    
+    /** This command line does not contain the "ffmpeg" and no information about
+     input and output files. */
+    protected String reducedCommandLine;
 
     public ExportFFmpeg(List<File> files, String commandLine, String executerPath, String renamePattern) {
-        super(files, commandLine, executerPath, renamePattern);
+        super(files, "bat", commandLine, executerPath, renamePattern);
     }
 
     public ExportFFmpeg(List<File> files, String commandLine, String executerPath, File outputFolder, boolean preserveFolders) {
-        super(files, commandLine, executerPath, outputFolder, preserveFolders);
+        super(files, "bat", commandLine, executerPath, outputFolder, preserveFolders);
     }
     
     @Override
     protected String buildScriptImplementation(Map<File, String> outputMapping) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        
+        /*
+         * TODO improve cli, linux sh script, connect to gui
+         */
+        
+        this.scriptFileExtension = "bat";
+        this.reducedCommandLine = reduceCommandLine(commandLine);
+        StringBuilder strb = new StringBuilder();
+        
+        for (File file : files) {
+            try {
+                String source = file.getCanonicalPath();
+                String destination = outputMapping.get(file);
+                strb.append(buildScriptLine(source, destination));
+            } catch (IOException ex) {
+                Logger.getLogger(ExportFFmpeg.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+        }
+        
+        return strb.toString();
     }
 
     @Override
     protected String buildScriptLine(String source, String destination) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if(reducedCommandLine != null) {
+            return String.format("%s -i \"%s\" %s \"%s\"\n", executerPath, source, reducedCommandLine, destination);
+        } else {
+            return String.format("%s -i \"%s\" \"%s\"\n", executerPath, source, destination);
+        }
+        
     }
 
     @Override
@@ -63,19 +95,49 @@ public class ExportFFmpeg extends Export {
          * "ffmpeg "+INPUT+COMMANDLINE+OUTPUT
          */
         
-        if(destinationFileExtension == null || destinationFileExtension.equals("")) {
-            // TODO use CommandLine utility class to get the right file extension and to clean the command Line
+        if(destinationFileExtension == null) {
+            CLParser parser = new CLParser(commandLine);
+            String destinationFileName = parser.getLastArg();
             
-            CommandLine.getArgValue(commandLine, "-f");
-            
-        } else {
-            return destinationFileExtension;
+            if(isFile(destinationFileName)) {
+                int extIndex = destinationFileName.lastIndexOf('.') + 1;
+                destinationFileExtension = destinationFileName.substring(extIndex);
+            } else if (parser.exists("-f")) {
+                destinationFileExtension = parser.getSubsequentArg("-f");
+            } else {
+                destinationFileExtension = "avi";
+            }
         }
         
-        
-        throw new UnsupportedOperationException("Not supported yet.");
+        return destinationFileExtension;
     }
     
+    // -------------- helpers --------------
     
+    protected static String reduceCommandLine(String commandLine) {
+        
+        CLParser clp = new CLParser(commandLine);
+        
+        if(clp.getFirstArg().toLowerCase().equals("ffmpeg")) {
+            clp.removeFirstArg();
+        }
+        clp.removeSubsequentArg("-i");
+        if(isFile(clp.getLastArg())) {
+            clp.removeLastArg();
+        }
+        
+        return null;
+    }
     
+    /**
+     * Guesses if a String could represent a file name. Not very accurate...
+     * @param name
+     * @return 
+     */
+    protected static boolean isFile(String name) {
+        if(name.contains(".") && name.charAt(0) != '-') {
+            return true;
+        }
+        return false;
+    }
 }

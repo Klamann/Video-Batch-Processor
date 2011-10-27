@@ -29,6 +29,7 @@ import sebi.util.data.ListUtils;
 import sebi.util.observer.EventArgs;
 import vbp.gui.FileFilters;
 import vbp.model.export.Export;
+import vbp.model.export.ExportFFmpeg;
 import vbp.model.export.ExportHandbrake;
 import vbp.util.arg.CommandLine;
 
@@ -227,6 +228,20 @@ public class Model {
 //                HandbrakeExportStatic.saveQueue(fileChooser, filesToTranscode, handBrakeQuery, outputLocation, preserveFolders);
                 handbrake = new ExportHandbrake(filesToTranscode, handBrakeQuery, outputLocation, preserveFolders);
                 handbrake.saveScript(fileChooser);
+                break;
+        }
+    }
+    
+    public void exportToFFmpeg(JFileChooser fileChooser) {
+        Export ffmpeg;
+        switch(outputMethod) {
+            case INPLACE:
+                ffmpeg = new ExportFFmpeg(filesToTranscode, "ffmpeg -i video_origine.avi video_finale.mpg", "ffmpeg", renamePattern);
+                ffmpeg.saveScript(fileChooser);
+                break;
+            case SPECIFIC_FOLDER:
+                ffmpeg = new ExportFFmpeg(filesToTranscode, "ffmpeg -i video_origine.avi video_finale.mpg", "ffmpeg", outputLocation, preserveFolders);
+                ffmpeg.saveScript(fileChooser);
                 break;
         }
     }

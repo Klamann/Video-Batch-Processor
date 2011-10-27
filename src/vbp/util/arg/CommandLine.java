@@ -22,6 +22,7 @@ import sebi.util.data.Tuple;
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
+@Deprecated
 public class CommandLine {
     
     

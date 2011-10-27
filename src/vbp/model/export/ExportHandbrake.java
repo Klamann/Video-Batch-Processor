@@ -76,7 +76,7 @@ public class ExportHandbrake extends Export {
                 counter++;
                 
             } catch (IOException ex) {
-                Logger.getLogger(HandbrakeExportStatic.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ExportHandbrake.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }

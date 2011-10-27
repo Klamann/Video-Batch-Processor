@@ -22,7 +22,9 @@
  */
 package vbp.gui;
 
+import javax.swing.JFileChooser;
 import sebi.util.observer.Event;
+import sebi.util.threads.ThreadedExecutor;
 import vbp.model.Model;
 
 /**
@@ -31,9 +33,13 @@ import vbp.model.Model;
  */
 public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable {
 
+    protected Model model;
+    
     /** Creates new form WindowExportFFmpeg */
     public WindowExportFFmpeg(java.awt.Frame parent, Model model) {
         super(parent, "Export to FFmpeg", true);
+        this.model = model;
+        
         initComponents();
     }
     
@@ -43,6 +49,17 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
 
     public void updateGuiValues() {
         // TODO implement
+    }
+    
+    protected void saveFFmpegScript() {
+        new ThreadedExecutor() {
+
+            @Override
+            public void execute() {
+                updateModelValues.fire();
+                model.exportToFFmpeg(new JFileChooser());
+            }
+        }.start();
     }
 
     public void safeExit() {
@@ -96,7 +113,11 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
         jLabelFFmpegPath.setText("Path to ffmpeg (optional):");
 
         jButtonSaveScript.setText("Save Script...");
-        jButtonSaveScript.setEnabled(false);
+        jButtonSaveScript.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSaveScriptActionPerformed(evt);
+            }
+        });
 
         jButtonExecuteNow.setText("Execute Now");
         jButtonExecuteNow.setEnabled(false);
@@ -110,7 +131,7 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
 
         jLabelFFmpegCommand.setText("FFmpeg Command Line:");
 
-        jTextPaneFFmpeg.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        jTextPaneFFmpeg.setFont(new java.awt.Font("Tahoma", 0, 10));
         jTextPaneFFmpeg.setToolTipText("<html>\n<p>Enter or paste your FFmpeg Command line here. All selected files will be transcoded with these settings.</p>\n<p>You do not have to remove the input or output file from the line, this is done automatically for you<br>(in fact, the output file extension is needed to guess the correct encoder, if the -f flag is not set)</p>\n<p>e.g.: <code>ffmpeg -i input.avi -ab 56 -ar 44100 -b 200 -r 15 -s 320x240 -f flv output.flv</code> will convert all video files to FLV.<br>The file \"input.avi\" will not be transcoded, as it is replaced by the files in the transcoding list.</p>\n</html>");
         jScrollPanelFFmpeg.setViewportView(jTextPaneFFmpeg);
 
@@ -172,6 +193,10 @@ public class WindowExportFFmpeg extends javax.swing.JDialog implements Saveable 
     private void jButtonCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCloseActionPerformed
         safeExit();
     }//GEN-LAST:event_jButtonCloseActionPerformed
+
+    private void jButtonSaveScriptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSaveScriptActionPerformed
+        saveFFmpegScript();
+    }//GEN-LAST:event_jButtonSaveScriptActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonBrowsePath;
