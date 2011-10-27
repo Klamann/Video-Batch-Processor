@@ -19,6 +19,7 @@ package vbp.model.export;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import vbp.util.arg.CommandLine;
 
 /**
  *
@@ -50,9 +51,13 @@ public class ExportFFmpeg extends Export {
         /*
          * ffmpeg gets the file format from two possible sources:
          * 1. guessed file format by the output file extension (output is always the last entry)
-         * 2. forced file format determined by the -f trigger (this overrides 1.)
+         * 2. forced file format determined by the -f trigger
          * 
-         * To get the correct file extension, this method needs the unfiltered
+         * This funcion will use the file extension of the given output file name
+         * if available, or use the forced file format name as extension (though
+         * this can look ugly...)
+         * 
+         * Therefore, to get the correct file extension, this method needs the unfiltered
          * ffmpeg command line. The extension will be determined only once. Afterwards
          * the command line will be cut, so it can be formatted later as
          * "ffmpeg "+INPUT+COMMANDLINE+OUTPUT
@@ -60,6 +65,9 @@ public class ExportFFmpeg extends Export {
         
         if(destinationFileExtension == null || destinationFileExtension.equals("")) {
             // TODO use CommandLine utility class to get the right file extension and to clean the command Line
+            
+            CommandLine.getArgValue(commandLine, "-f");
+            
         } else {
             return destinationFileExtension;
         }

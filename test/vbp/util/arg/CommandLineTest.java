@@ -33,11 +33,11 @@ public class CommandLineTest {
         String commandLine = " -i \"C:\\path\\to\\some\\folder on my disk\\P1020037.MOV\" -t 1 -c 1 -o \"C:\\path\\to\\some\\folder on my disk\\P1020037.mkv\" -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1";
         
         String result = CommandLine.removeArgFromString(commandLine, "-i");
-        String expected = "  -t 1 -c 1 -o \"C:\\path\\to\\some\\folder on my disk\\P1020037.mkv\" -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1";
+        String expected = " -t 1 -c 1 -o \"C:\\path\\to\\some\\folder on my disk\\P1020037.mkv\" -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1";
         assertEquals(expected, result);
         
         String result2 = CommandLine.removeArgFromString(result, "-o");
-        String expected2 = "  -t 1 -c 1  -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1";
+        String expected2 = " -t 1 -c 1 -f mkv --strict-anamorphic  -e x264 -q 25 -a 1 -E lame -6 dpl2 -R Auto -B 128 -D 0.0 -x ref=2:bframes=2:subq=6:mixed-refs=0:weightb=0:8x8dct=0:trellis=0 --verbose=1";
         assertEquals(expected2, result2);
         
         assertEquals(result2, CommandLine.removeArgFromString(commandLine, "-i", "-o"));
@@ -71,5 +71,46 @@ public class CommandLineTest {
         String fail = "ffmpeg this script failed...";
         String result3 = CommandLine.getArgValue(fail, "-i");
         assertEquals(null, result3);
+    }
+    
+    @Test
+    public void testArgBounds() {
+        String commandLine = "ffmpeg -i film.avi film.mpeg";
+        CommandLine.ArgBounds arg = new CommandLine.ArgBounds(commandLine, "-i");
+        
+        assertTrue(arg.argExists());
+        assertEquals(7, arg.getArgBegin());
+        assertEquals(9, arg.getArgEnd());
+        assertEquals(10, arg.getContentBegin());
+        assertEquals(18, arg.getContentEnd());
+        
+        
+        String commandLine2 = "ffmpeg -i \"film 2.avi\" film.mpeg";
+        CommandLine.ArgBounds arg2 = new CommandLine.ArgBounds(commandLine2, "-i");
+        
+        assertTrue(arg2.argExists());
+        assertEquals(7, arg2.getArgBegin());
+        assertEquals(9, arg2.getArgEnd());
+        assertEquals(11, arg2.getContentBegin());
+        assertEquals(21, arg2.getContentEnd());
+        
+        
+        String commandLine3 = "ffmpeg -xy \"film 2.avi\" film.mpeg";
+        CommandLine.ArgBounds arg3 = new CommandLine.ArgBounds(commandLine3, "-i");
+        
+        assertFalse(arg3.argExists());
+    }
+    
+    @Test
+    public void testGetLastArg() {
+        
+        String cmd = "ffmpeg -i test.avi test.mpeg";
+        String lastarg = CommandLine.getLastArg(cmd);
+        assertEquals("test.mpeg", lastarg);
+        
+        String cmd2 = "ffmpeg -i \"test 2.avi\" \"test 2.mpeg\"";
+        String lastarg2 = CommandLine.getLastArg(cmd2);
+        assertEquals("test 2.mpeg", lastarg2);
+        
     }
 }
